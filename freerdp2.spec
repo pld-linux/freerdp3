@@ -1,6 +1,5 @@
 # TODO:
 # - fix DirectFB client build
-# - consider coexisting freerdp 1.x and 2.0 (some apps require 1.x version, e.g. vlc)
 #
 # Conditional build:
 %bcond_without	alsa		# ALSA sound support
@@ -16,18 +15,18 @@
 %ifarch %{x8664} pentium4
 %define	with_sse2	1
 %endif
-%define	rel	1
-%define	snap	20160519
 Summary:	Remote Desktop Protocol client
 Summary(pl.UTF-8):	Klient protokołu RDP
-Name:		freerdp
+Name:		freerdp2
 Version:	2.0.0
+%define	snap	20160701
+%define	gitref	a132545545ef90534a64a08f5199741502de97e5
+%define	rel	1
 Release:	0.%{snap}.%{rel}
 License:	Apache v2.0
 Group:		Applications/Communications
-# https://github.com/FreeRDP/FreeRDP/archive/master.tar.gz
-Source0:	%{name}-%{version}-%{snap}.tar.gz
-# Source0-md5:	ba0d58f19e6a2bd3ca1ac88593c7ed80
+Source0:	https://github.com/FreeRDP/FreeRDP/archive/%{gitref}/freerdp-%{version}-%{snap}.tar.gz
+# Source0-md5:	1df5c4d0375cd90fc996d4568ef1ce76
 Patch0:		freerdp-DirectFB-include.patch
 URL:		http://www.freerdp.com/
 %{?with_directfb:BuildRequires:	DirectFB-devel}
@@ -129,7 +128,7 @@ Ten pakiet zawiera pliki nagłówkowe do tworzenia aplikacji
 wykorzystujących biblioteki FreeRDP.
 
 %prep
-%setup -q -n FreeRDP-master
+%setup -q -n FreeRDP-%{gitref}
 %patch0 -p1
 
 cat << EOF > xfreerdp.desktop
@@ -178,7 +177,7 @@ rm -rf $RPM_BUILD_ROOT
 %{__rm} -r $RPM_BUILD_ROOT%{_libdir}/cmake
 
 desktop-file-install --dir=$RPM_BUILD_ROOT%{_desktopdir} xfreerdp.desktop
-install -p -D resources/FreeRDP_Icon_256px.png $RPM_BUILD_ROOT%{_datadir}/icons/hicolor/256x256/apps/%{name}.png
+install -p -D resources/FreeRDP_Icon_256px.png $RPM_BUILD_ROOT%{_datadir}/icons/hicolor/256x256/apps/freerdp2.png
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -205,7 +204,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/winpr-makecert
 %{_mandir}/man1/xfreerdp.1*
 %{_desktopdir}/xfreerdp.desktop
-%{_iconsdir}/hicolor/256x256/apps/freerdp.png
+%{_iconsdir}/hicolor/256x256/apps/freerdp2.png
 
 %if %{with directfb}
 %files dfb
