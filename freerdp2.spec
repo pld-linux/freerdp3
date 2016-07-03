@@ -16,7 +16,7 @@
 %bcond_without	wayland		# Wayland client
 %bcond_without	x11		# X11 client
 %bcond_with	x264		# X264 for H.264 codec [only if ffmpeg and openh264 disabled]
-%bcond_with	sse2		# SSE2 instructions
+%bcond_with	sse2		# SSE2 and higher instructions (SSE2 unconditionally in libfreerdp/codec/nsc_sse2.c; elsewhere >=SSE2 runtime detected)
 
 %ifarch %{x8664} pentium4
 %define	with_sse2	1
