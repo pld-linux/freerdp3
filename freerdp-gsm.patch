@@ -1,0 +1,20 @@
+--- FreeRDP-a132545545ef90534a64a08f5199741502de97e5/cmake/FindGSM.cmake.orig	2016-06-30 22:43:05.000000000 +0200
++++ FreeRDP-a132545545ef90534a64a08f5199741502de97e5/cmake/FindGSM.cmake	2016-07-02 20:05:44.567199213 +0200
+@@ -1,5 +1,5 @@
+ 
+-find_path(GSM_INCLUDE_DIR gsm/gsm.h)
++find_path(GSM_INCLUDE_DIR gsm.h)
+ 
+ find_library(GSM_LIBRARY gsm)
+ 
+--- FreeRDP-a132545545ef90534a64a08f5199741502de97e5/channels/rdpsnd/client/pulse/rdpsnd_pulse.c.orig	2016-06-30 22:43:05.000000000 +0200
++++ FreeRDP-a132545545ef90534a64a08f5199741502de97e5/channels/rdpsnd/client/pulse/rdpsnd_pulse.c	2016-07-02 20:10:48.938883624 +0200
+@@ -34,7 +34,7 @@
+ #include <pulse/pulseaudio.h>
+ 
+ #ifdef WITH_GSM
+-#include <gsm/gsm.h>
++#include <gsm.h>
+ #endif
+ 
+ #include <freerdp/types.h>
