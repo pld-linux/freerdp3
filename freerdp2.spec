@@ -25,14 +25,14 @@ Summary:	Remote Desktop Protocol client
 Summary(pl.UTF-8):	Klient protokołu RDP
 Name:		freerdp2
 Version:	2.0.0
-%define	snap	20160824
-%define	gitref	5b2455f3147aca395a441fc65b602938600f0788
+%define	snap	20161120
+%define	gitref	06d47530b6501ce09f649814f5023c3dd88ce5a0
 %define	rel	1
 Release:	0.%{snap}.%{rel}
 License:	Apache v2.0
 Group:		Applications/Communications
 Source0:	https://github.com/FreeRDP/FreeRDP/archive/%{gitref}/freerdp-%{version}-%{snap}.tar.gz
-# Source0-md5:	5472cd922f58a403c8d35fed9cc69391
+# Source0-md5:	9c6e629a7d6c628c8864f747ebd2a193
 Patch0:		freerdp-DirectFB-include.patch
 Patch1:		freerdp-opt.patch
 Patch2:		freerdp-gsm.patch
