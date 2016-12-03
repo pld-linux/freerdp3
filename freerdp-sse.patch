@@ -1,0 +1,20 @@
+--- FreeRDP-06d47530b6501ce09f649814f5023c3dd88ce5a0/libfreerdp/codec/nsc_sse2.c.orig	2016-11-18 12:46:14.000000000 +0100
++++ FreeRDP-06d47530b6501ce09f649814f5023c3dd88ce5a0/libfreerdp/codec/nsc_sse2.c	2016-12-03 09:01:03.673102526 +0100
+@@ -30,6 +30,7 @@
+ 
+ #include <freerdp/codec/color.h>
+ #include <winpr/crt.h>
++#include <winpr/sysinfo.h>
+ 
+ #include "nsc_types.h"
+ #include "nsc_sse2.h"
+@@ -400,6 +401,9 @@
+ 
+ void nsc_init_sse2(NSC_CONTEXT* context)
+ {
++	if (IsProcessorFeaturePresent(PF_SSE2_INSTRUCTIONS_AVAILABLE))
++	{
+ 	IF_PROFILER(context->priv->prof_nsc_encode->name = "nsc_encode_sse2");
+ 	context->encode = nsc_encode_sse2;
++	}
+ }

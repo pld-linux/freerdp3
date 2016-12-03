@@ -16,10 +16,10 @@
 %bcond_without	wayland		# Wayland client
 %bcond_without	x11		# X11 client
 %bcond_with	x264		# X264 for H.264 codec [only if ffmpeg and openh264 disabled]
-%bcond_with	sse2		# SSE2 and higher instructions (SSE2 unconditionally in libfreerdp/codec/nsc_sse2.c; elsewhere >=SSE2 runtime detected)
+%bcond_without	sse2		# SSE2 and higher instructions (runtime detection with sse patch)
 
-%ifarch %{x8664} pentium4
-%define	with_sse2	1
+%ifnarch %{ix86} %{x8664} x32
+%undefine	with_sse2
 %endif
 Summary:	Remote Desktop Protocol client
 Summary(pl.UTF-8):	Klient protokołu RDP
@@ -36,6 +36,7 @@ Source0:	https://github.com/FreeRDP/FreeRDP/archive/%{gitref}/freerdp-%{version}
 Patch0:		freerdp-DirectFB-include.patch
 Patch1:		freerdp-opt.patch
 Patch2:		freerdp-gsm.patch
+Patch3:		freerdp-sse.patch
 URL:		http://www.freerdp.com/
 %{?with_directfb:BuildRequires:	DirectFB-devel}
 %{?with_alsa:BuildRequires:	alsa-lib-devel}
@@ -176,6 +177,7 @@ wykorzystujących biblioteki FreeRDP 2.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 cat << EOF > xfreerdp.desktop
 [Desktop Entry]
@@ -248,6 +250,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/winpr-hash
 %attr(755,root,root) %{_bindir}/winpr-makecert
 %{_iconsdir}/hicolor/256x256/apps/freerdp2.png
+# FIXME: should be wlog(7) or so (refers to wlog logging subsystem, not program)
+%{_mandir}/man1/wlog.1*
 
 %if %{with directfb}
 %files dfb
