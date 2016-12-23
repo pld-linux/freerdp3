@@ -25,14 +25,14 @@ Summary:	Remote Desktop Protocol client
 Summary(pl.UTF-8):	Klient protokołu RDP
 Name:		freerdp2
 Version:	2.0.0
-%define	snap	20161120
-%define	gitref	06d47530b6501ce09f649814f5023c3dd88ce5a0
+%define	snap	20161223
+%define	gitref	8d0809cf26868fc5ff651850a32724650597747f
 %define	rel	1
 Release:	0.%{snap}.%{rel}
 License:	Apache v2.0
 Group:		Applications/Communications
 Source0:	https://github.com/FreeRDP/FreeRDP/archive/%{gitref}/freerdp-%{version}-%{snap}.tar.gz
-# Source0-md5:	9c6e629a7d6c628c8864f747ebd2a193
+# Source0-md5:	1526e9da6ee0a7df0bf5e3780fe7af4d
 Patch0:		freerdp-DirectFB-include.patch
 Patch1:		freerdp-opt.patch
 Patch2:		freerdp-gsm.patch
@@ -250,8 +250,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/winpr-hash
 %attr(755,root,root) %{_bindir}/winpr-makecert
 %{_iconsdir}/hicolor/256x256/apps/freerdp2.png
-# FIXME: should be wlog(7) or so (refers to wlog logging subsystem, not program)
-%{_mandir}/man1/wlog.1*
+%{_mandir}/man7/wlog.7*
 
 %if %{with directfb}
 %files dfb
