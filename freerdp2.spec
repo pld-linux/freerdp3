@@ -18,6 +18,8 @@
 %bcond_with	x264		# X264 for H.264 codec [only if ffmpeg and openh264 disabled]
 %bcond_without	sse2		# SSE2 and higher instructions (runtime detection with sse patch)
 
+%define	freerdp_api	2
+
 %ifnarch %{ix86} %{x8664} x32
 %undefine	with_sse2
 %endif
@@ -25,14 +27,14 @@ Summary:	Remote Desktop Protocol client
 Summary(pl.UTF-8):	Klient protokołu RDP
 Name:		freerdp2
 Version:	2.0.0
-%define	snap	20161223
-%define	gitref	8d0809cf26868fc5ff651850a32724650597747f
+%define	snap	20170201
+%define	gitref	6001cb710dc67eb8811362b7bf383754257a902b
 %define	rel	1
 Release:	0.%{snap}.%{rel}
 License:	Apache v2.0
 Group:		Applications/Communications
 Source0:	https://github.com/FreeRDP/FreeRDP/archive/%{gitref}/freerdp-%{version}-%{snap}.tar.gz
-# Source0-md5:	1526e9da6ee0a7df0bf5e3780fe7af4d
+# Source0-md5:	66f2fa62e39a9ba02ef6ca600c5281f8
 Patch0:		freerdp-DirectFB-include.patch
 Patch1:		freerdp-opt.patch
 Patch2:		freerdp-gsm.patch
@@ -204,6 +206,7 @@ cd build
 	-DWITH_FFMPEG=%{cmake_on_off ffmpeg} \
 	-DWITH_GSM=%{cmake_on_off gsm} \
 	-DWITH_GSTREAMER_1_0=%{cmake_on_off gstreamer} \
+	-DWITH_JPEG=ON \
 	-DWITH_LIBSYSTEMD=%{cmake_on_off systemd} \
 	-DWITH_OPENH264=%{cmake_on_off openh264} \
 	-DWITH_OSS=ON \
@@ -250,6 +253,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/winpr-hash
 %attr(755,root,root) %{_bindir}/winpr-makecert
 %{_iconsdir}/hicolor/256x256/apps/freerdp2.png
+%{_mandir}/man1/freerdp-shadow-cli.1*
+%{_mandir}/man1/winpr-hash.1*
+%{_mandir}/man1/winpr-makecert.1*
 %{_mandir}/man7/wlog.7*
 
 %if %{with directfb}
@@ -263,6 +269,7 @@ rm -rf $RPM_BUILD_ROOT
 %files wayland
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/wlfreerdp
+%{_mandir}/man1/wlfreerdp.1*
 %endif
 
 %if %{with x11}
@@ -276,33 +283,33 @@ rm -rf $RPM_BUILD_ROOT
 %files libs
 %defattr(644,root,root,755)
 %doc ChangeLog README
-%attr(755,root,root) %{_libdir}/libfreerdp-client.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libfreerdp-client.so.2
-%attr(755,root,root) %{_libdir}/libfreerdp-server.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libfreerdp-server.so.2
-%attr(755,root,root) %{_libdir}/libfreerdp-shadow.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libfreerdp-shadow.so.2
-%attr(755,root,root) %{_libdir}/libfreerdp-shadow-subsystem.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libfreerdp-shadow-subsystem.so.2
-%attr(755,root,root) %{_libdir}/libfreerdp.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libfreerdp.so.2
-%attr(755,root,root) %{_libdir}/libuwac.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libuwac.so.0
-%attr(755,root,root) %{_libdir}/libwinpr.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libwinpr.so.2
-%attr(755,root,root) %{_libdir}/libwinpr-tools.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libwinpr-tools.so.2
+%attr(755,root,root) %{_libdir}/libfreerdp-client%{freerdp_api}.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libfreerdp-client%{freerdp_api}.so.2
+%attr(755,root,root) %{_libdir}/libfreerdp-server%{freerdp_api}.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libfreerdp-server%{freerdp_api}.so.2
+%attr(755,root,root) %{_libdir}/libfreerdp-shadow%{freerdp_api}.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libfreerdp-shadow%{freerdp_api}.so.2
+%attr(755,root,root) %{_libdir}/libfreerdp-shadow-subsystem%{freerdp_api}.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libfreerdp-shadow-subsystem%{freerdp_api}.so.2
+%attr(755,root,root) %{_libdir}/libfreerdp%{freerdp_api}.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libfreerdp%{freerdp_api}.so.2
+%attr(755,root,root) %{_libdir}/libuwac0.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libuwac0.so.0
+%attr(755,root,root) %{_libdir}/libwinpr%{freerdp_api}.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libwinpr%{freerdp_api}.so.2
+%attr(755,root,root) %{_libdir}/libwinpr-tools%{freerdp_api}.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libwinpr-tools%{freerdp_api}.so.2
 
 %files devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libfreerdp-client.so
-%attr(755,root,root) %{_libdir}/libfreerdp-server.so
-%attr(755,root,root) %{_libdir}/libfreerdp-shadow.so
-%attr(755,root,root) %{_libdir}/libfreerdp-shadow-subsystem.so
-%attr(755,root,root) %{_libdir}/libfreerdp.so
-%attr(755,root,root) %{_libdir}/libuwac.so
-%attr(755,root,root) %{_libdir}/libwinpr.so
-%attr(755,root,root) %{_libdir}/libwinpr-tools.so
+%attr(755,root,root) %{_libdir}/libfreerdp-client%{freerdp_api}.so
+%attr(755,root,root) %{_libdir}/libfreerdp-server%{freerdp_api}.so
+%attr(755,root,root) %{_libdir}/libfreerdp-shadow%{freerdp_api}.so
+%attr(755,root,root) %{_libdir}/libfreerdp-shadow-subsystem%{freerdp_api}.so
+%attr(755,root,root) %{_libdir}/libfreerdp%{freerdp_api}.so
+%attr(755,root,root) %{_libdir}/libuwac0.so
+%attr(755,root,root) %{_libdir}/libwinpr%{freerdp_api}.so
+%attr(755,root,root) %{_libdir}/libwinpr-tools%{freerdp_api}.so
 %{_includedir}/freerdp2
 %{_includedir}/uwac0
 %{_includedir}/winpr2
