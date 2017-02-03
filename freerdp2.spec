@@ -202,6 +202,7 @@ cd build
 	-DWITH_ALSA=%{cmake_on_off alsa} \
 	-DWITH_CUNIT=OFF \
 	-DWITH_CUPS=%{cmake_on_off cups} \
+	-DWITH_DEBUG_LICENSE=ON \
 	-DWITH_DIRECTFB=%{cmake_on_off directfb} \
 	-DWITH_FFMPEG=%{cmake_on_off ffmpeg} \
 	-DWITH_GSM=%{cmake_on_off gsm} \
