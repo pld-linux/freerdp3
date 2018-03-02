@@ -9,6 +9,7 @@
 %bcond_without	ffmpeg		# FFmpeg audio/video decoding support
 %bcond_without	gsm		# GSM audio codec
 %bcond_without	gstreamer	# GStreamer sound support
+%bcond_without	kerberos5	# GSSAPI auth support
 %bcond_with	openh264	# OpenH264 for H.264 codec [only if ffmpeg disabled]
 %bcond_without	pcsc		# SmartCard support via PCSC-lite library
 %bcond_without	pulseaudio	# Pulseaudio sound support
@@ -27,14 +28,14 @@ Summary:	Remote Desktop Protocol client
 Summary(pl.UTF-8):	Klient protokołu RDP
 Name:		freerdp2
 Version:	2.0.0
-%define	snap	20170201
-%define	gitref	6001cb710dc67eb8811362b7bf383754257a902b
+%define	snap	20170724
+%define	gitref	84f8161897534d9263ffebe43092827d40fc7ffb
 %define	rel	1
 Release:	0.%{snap}.%{rel}
 License:	Apache v2.0
 Group:		Applications/Communications
 Source0:	https://github.com/FreeRDP/FreeRDP/archive/%{gitref}/freerdp-%{version}-%{snap}.tar.gz
-# Source0-md5:	66f2fa62e39a9ba02ef6ca600c5281f8
+# Source0-md5:	2dc380b5ccfd84fdeec5f0225ffd3d45
 Patch0:		freerdp-DirectFB-include.patch
 Patch1:		freerdp-opt.patch
 Patch2:		freerdp-gsm.patch
@@ -49,6 +50,8 @@ BuildRequires:	desktop-file-utils
 %{?with_ffmpeg:BuildRequires:	ffmpeg-devel >= 0.8}
 %{?with_gstreamer:BuildRequires:	gstreamer-devel >= 1.0.5}
 %{?with_gstreamer:BuildRequires:	gstreamer-plugins-base-devel >= 1.0.5}
+# MIT krb5 >= 1.13 also possible
+%{?with_kerberos5:BuildRequires:	heimdal-devel}
 %{?with_gsm:BuildRequires:	libgsm-devel}
 BuildRequires:	libjpeg-devel
 %{?with_x264:BuildRequires:	libx264-devel}
@@ -207,6 +210,7 @@ cd build
 	-DWITH_FFMPEG=%{cmake_on_off ffmpeg} \
 	-DWITH_GSM=%{cmake_on_off gsm} \
 	-DWITH_GSTREAMER_1_0=%{cmake_on_off gstreamer} \
+	-DWITH_GSSAPI=%{cmake_on_off kerberos5} \
 	-DWITH_JPEG=ON \
 	-DWITH_LIBSYSTEMD=%{cmake_on_off systemd} \
 	-DWITH_OPENH264=%{cmake_on_off openh264} \
