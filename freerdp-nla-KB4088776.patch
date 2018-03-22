@@ -1,0 +1,24 @@
+diff -ruNp FreeRDP-84f8161897534d9263ffebe43092827d40fc7ffb.orig/libfreerdp/core/nla.c FreeRDP-84f8161897534d9263ffebe43092827d40fc7ffb/libfreerdp/core/nla.c
+--- FreeRDP-84f8161897534d9263ffebe43092827d40fc7ffb.orig/libfreerdp/core/nla.c	2017-11-28 15:26:30.000000000 +0100
++++ FreeRDP-84f8161897534d9263ffebe43092827d40fc7ffb/libfreerdp/core/nla.c	2018-03-22 13:36:50.163380787 +0100
+@@ -1663,15 +1663,19 @@ BOOL nla_send(rdpNla* nla)
+ static int nla_decode_ts_request(rdpNla* nla, wStream* s)
+ {
+ 	int length;
++	UINT32 version = 0;
+ 
+ 	/* TSRequest */
+ 	if (!ber_read_sequence_tag(s, &length) ||
+ 	    !ber_read_contextual_tag(s, 0, &length, TRUE) ||
+-	    !ber_read_integer(s, &nla->version))
++	    !ber_read_integer(s, &version))
+ 	{
+ 		return -1;
+ 	}
+ 
++	if (version < nla->version)
++		nla->version = version;
++
+ 	/* [1] negoTokens (NegoData) */
+ 	if (ber_read_contextual_tag(s, 1, &length, TRUE) != FALSE)
+ 	{

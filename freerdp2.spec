@@ -30,7 +30,7 @@ Name:		freerdp2
 Version:	2.0.0
 %define	snap	20170724
 %define	gitref	84f8161897534d9263ffebe43092827d40fc7ffb
-%define	rel	1
+%define	rel	2
 Release:	0.%{snap}.%{rel}
 License:	Apache v2.0
 Group:		Applications/Communications
@@ -40,6 +40,7 @@ Patch0:		freerdp-DirectFB-include.patch
 Patch1:		freerdp-opt.patch
 Patch2:		freerdp-gsm.patch
 Patch3:		freerdp-sse.patch
+Patch4:		freerdp-nla-KB4088776.patch
 URL:		http://www.freerdp.com/
 %{?with_directfb:BuildRequires:	DirectFB-devel}
 %{?with_alsa:BuildRequires:	alsa-lib-devel}
@@ -183,6 +184,7 @@ wykorzystujących biblioteki FreeRDP 2.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
 
 cat << EOF > xfreerdp.desktop
 [Desktop Entry]
