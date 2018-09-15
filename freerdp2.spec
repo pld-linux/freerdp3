@@ -30,7 +30,7 @@ Name:		freerdp2
 Version:	2.0.0
 %define	snap	20180809
 %define	gitref	dd26659ab0be7f1c841323064c6fbf8adb609fe5
-%define	rel	1
+%define	rel	2
 Release:	0.%{snap}.%{rel}
 License:	Apache v2.0
 Group:		Applications/Communications
