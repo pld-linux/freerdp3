@@ -45,8 +45,8 @@ URL:		http://www.freerdp.com/
 BuildRequires:	cmake >= 2.8
 %{?with_cups:BuildRequires:	cups-devel}
 BuildRequires:	desktop-file-utils
-# libavcodec >= 53.25.0, libavutil
-%{?with_ffmpeg:BuildRequires:	ffmpeg-devel >= 0.8}
+# libavcodec >= 57.48.101, libavresample, libavutil
+%{?with_ffmpeg:BuildRequires:	ffmpeg-devel >= 3.1}
 %{?with_gstreamer:BuildRequires:	gstreamer-devel >= 1.0.5}
 %{?with_gstreamer:BuildRequires:	gstreamer-plugins-base-devel >= 1.0.5}
 # MIT krb5 >= 1.13 also possible
