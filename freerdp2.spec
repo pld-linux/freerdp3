@@ -58,6 +58,7 @@ BuildRequires:	openssl-devel
 %{?with_pcsc:BuildRequires:	pcsc-lite-devel}
 BuildRequires:	pkgconfig
 %{?with_pulseaudio:BuildRequires:	pulseaudio-devel}
+BuildRequires:	rpmbuild(macros) >= 1.742
 %{?with_systemd:BuildRequires:	systemd-devel >= 1:209}
 %{?with_wayland:BuildRequires:	wayland-devel}
 BuildRequires:	xmlto
@@ -76,9 +77,6 @@ BuildRequires:	zlib-devel
 Requires:	%{name}-libs = %{version}-%{release}
 Requires:	hicolor-icon-theme
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
-
-# Usage: -DWITH_<option>=%{cmake_on_off <bcond_name>}
-%define		cmake_on_off() %{expand:%%{?with_%{1}:ON}%%{!?with_%{1}:OFF}}
 
 %description
 FreeRDP is Remote Desktop Protocol (RDP) client.
@@ -198,26 +196,26 @@ install -d build
 cd build
 %cmake .. \
 	-DCMAKE_INSTALL_LIBDIR:PATH=%{_lib} \
-	-DWITH_ALSA=%{cmake_on_off alsa} \
+	%{cmake_on_off alsa ALSA} \
 	-DWITH_CUNIT=OFF \
-	-DWITH_CUPS=%{cmake_on_off cups} \
+	%{cmake_on_off cups CUPS} \
 	-DWITH_DEBUG_LICENSE=ON \
-	-DWITH_DIRECTFB=%{cmake_on_off directfb} \
-	-DWITH_FFMPEG=%{cmake_on_off ffmpeg} \
-	-DWITH_GSM=%{cmake_on_off gsm} \
-	-DWITH_GSTREAMER_1_0=%{cmake_on_off gstreamer} \
-	-DWITH_GSSAPI=%{cmake_on_off kerberos5} \
+	%{cmake_on_off directfb DIRECTFB} \
+	%{cmake_on_off ffmpeg FFMPEG} \
+	%{cmake_on_off gsm GSM} \
+	%{cmake_on_off gstreamer GSTREAMER_1_0} \
+	%{cmake_on_off kerberos5 GSSAPI} \
 	-DWITH_JPEG=ON \
-	-DWITH_LIBSYSTEMD=%{cmake_on_off systemd} \
-	-DWITH_OPENH264=%{cmake_on_off openh264} \
+	%{cmake_on_off systemd LIBSYSTEMD} \
+	%{cmake_on_off openh264 OPENH264} \
 	-DWITH_OSS=ON \
-	-DWITH_PCSC=%{cmake_on_off pcsc} \
-	-DWITH_PULSE=%{cmake_on_off pulseaudio} \
+	%{cmake_on_off pcsc PCSC} \
+	%{cmake_on_off pulseaudio PULSE} \
 	-DWITH_SERVER=ON \
-	-DWITH_SSE2=%{cmake_on_off sse2} \
-	-DWITH_WAYLAND=%{cmake_on_off wayland} \
-	-DWITH_X11=%{cmake_on_off x11} \
-	-DWITH_X264=%{cmake_on_off x264} \
+	%{cmake_on_off sse2 SSE2} \
+	%{cmake_on_off wayland WAYLAND} \
+	%{cmake_on_off x11 X11} \
+	%{cmake_on_off x264 X264} \
 	-DWITH_XCURSOR=ON \
 	-DWITH_XEXT=ON \
 	-DWITH_XINERAMA=ON \
