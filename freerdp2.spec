@@ -196,26 +196,26 @@ install -d build
 cd build
 %cmake .. \
 	-DCMAKE_INSTALL_LIBDIR:PATH=%{_lib} \
-	%{cmake_on_off alsa ALSA} \
+	%{cmake_on_off alsa WITH_ALSA} \
 	-DWITH_CUNIT=OFF \
-	%{cmake_on_off cups CUPS} \
+	%{cmake_on_off cups WITH_CUPS} \
 	-DWITH_DEBUG_LICENSE=ON \
-	%{cmake_on_off directfb DIRECTFB} \
-	%{cmake_on_off ffmpeg FFMPEG} \
-	%{cmake_on_off gsm GSM} \
-	%{cmake_on_off gstreamer GSTREAMER_1_0} \
-	%{cmake_on_off kerberos5 GSSAPI} \
+	%{cmake_on_off directfb WITH_DIRECTFB} \
+	%{cmake_on_off ffmpeg WITH_FFMPEG} \
+	%{cmake_on_off gsm WITH_GSM} \
+	%{cmake_on_off gstreamer WITH_GSTREAMER_1_0} \
+	%{cmake_on_off kerberos5 WITH_GSSAPI} \
 	-DWITH_JPEG=ON \
-	%{cmake_on_off systemd LIBSYSTEMD} \
-	%{cmake_on_off openh264 OPENH264} \
+	%{cmake_on_off systemd WITH_LIBSYSTEMD} \
+	%{cmake_on_off openh264 WITH_OPENH264} \
 	-DWITH_OSS=ON \
-	%{cmake_on_off pcsc PCSC} \
-	%{cmake_on_off pulseaudio PULSE} \
+	%{cmake_on_off pcsc WITH_PCSC} \
+	%{cmake_on_off pulseaudio WITH_PULSE} \
 	-DWITH_SERVER=ON \
-	%{cmake_on_off sse2 SSE2} \
-	%{cmake_on_off wayland WAYLAND} \
-	%{cmake_on_off x11 X11} \
-	%{cmake_on_off x264 X264} \
+	%{cmake_on_off sse2 WITH_SSE2} \
+	%{cmake_on_off wayland WITH_WAYLAND} \
+	%{cmake_on_off x11 WITH_X11} \
+	%{cmake_on_off x264 WITH_X264} \
 	-DWITH_XCURSOR=ON \
 	-DWITH_XEXT=ON \
 	-DWITH_XINERAMA=ON \
