@@ -9,7 +9,10 @@
 %bcond_without	ffmpeg		# FFmpeg audio/video decoding support
 %bcond_without	gsm		# GSM audio codec
 %bcond_without	gstreamer	# GStreamer sound support
-%bcond_without	kerberos5	# GSSAPI auth support
+# for now the kerberos5 support has to be disabled due to a bad state of its code.
+# See: https://github.com/FreeRDP/FreeRDP/issues/4348
+# See: https://github.com/FreeRDP/FreeRDP/issues/5746
+%bcond_with	kerberos5	# GSSAPI auth support
 %bcond_with	openh264	# OpenH264 for H.264 codec [only if ffmpeg disabled]
 %bcond_without	pcsc		# SmartCard support via PCSC-lite library
 %bcond_without	pulseaudio	# Pulseaudio sound support
@@ -28,22 +31,24 @@ Summary:	Remote Desktop Protocol client
 Summary(pl.UTF-8):	Klient protokołu RDP
 Name:		freerdp2
 Version:	2.0.0
-%define	snap	20190320
-%define	gitref	74f0bdf99e9022575b61f4f8774f88b5b3e5c918
+%define	snap	20200115
+%define	gitref	30d6e25def7aa924eb8dc104f830996977cf0958
 %define	rel	1
 Release:	0.%{snap}.%{rel}
 License:	Apache v2.0
 Group:		Applications/Communications
 Source0:	https://github.com/FreeRDP/FreeRDP/archive/%{gitref}/freerdp-%{version}-%{snap}.tar.gz
-# Source0-md5:	0a35c157c18a46aeff2c373d06eef004
+# Source0-md5:	f0c23b3ffc66f9d65d3f5fc095e53de8
 Patch0:		freerdp-opt.patch
 Patch1:		freerdp-gsm.patch
 URL:		http://www.freerdp.com/
 %{?with_directfb:BuildRequires:	DirectFB-devel}
 %{?with_alsa:BuildRequires:	alsa-lib-devel}
+%{!?with_ffmpeg:BuildRequires:	cairo-devel}
 BuildRequires:	cmake >= 2.8
 %{?with_cups:BuildRequires:	cups-devel}
 BuildRequires:	desktop-file-utils
+BuildRequires:	docbook-style-xsl
 # libavcodec >= 57.48.101, libavresample, libavutil
 %{?with_ffmpeg:BuildRequires:	ffmpeg-devel >= 3.1}
 %{?with_gstreamer:BuildRequires:	gstreamer-devel >= 1.0.5}
@@ -62,6 +67,7 @@ BuildRequires:	rpmbuild(macros) >= 1.742
 %{?with_systemd:BuildRequires:	systemd-devel >= 1:209}
 %{?with_wayland:BuildRequires:	wayland-devel}
 BuildRequires:	xmlto
+%{?with_wayland:BuildRequires:	xorg-lib-libxkbcommon-devel}
 %if %{with x11}
 BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	xorg-lib-libXcursor-devel
@@ -69,9 +75,10 @@ BuildRequires:	xorg-lib-libXdamage-devel
 BuildRequires:	xorg-lib-libXext-devel
 BuildRequires:	xorg-lib-libXfixes-devel
 BuildRequires:	xorg-lib-libXinerama-devel
+BuildRequires:	xorg-lib-libXrandr-devel
 BuildRequires:	xorg-lib-libXtst-devel
 BuildRequires:	xorg-lib-libXv-devel
-BuildRequires:	xorg-lib-libxkbfile
+BuildRequires:	xorg-lib-libxkbfile-devel
 %endif
 BuildRequires:	zlib-devel
 Requires:	%{name}-libs = %{version}-%{release}
@@ -197,6 +204,7 @@ cd build
 %cmake .. \
 	-DCMAKE_INSTALL_LIBDIR:PATH=%{_lib} \
 	%{cmake_on_off alsa WITH_ALSA} \
+	%{!?with_ffmpeg:-DWITH_CAIRO=ON} \
 	-DWITH_CUNIT=OFF \
 	%{cmake_on_off cups WITH_CUPS} \
 	-DWITH_DEBUG_LICENSE=ON \
@@ -213,6 +221,7 @@ cd build
 	%{cmake_on_off pulseaudio WITH_PULSE} \
 	-DWITH_SERVER=ON \
 	%{cmake_on_off sse2 WITH_SSE2} \
+	%{cmake_on_off ffmpeg WITH_SWSCALE} \
 	%{cmake_on_off wayland WITH_WAYLAND} \
 	%{cmake_on_off x11 WITH_X11} \
 	%{cmake_on_off x264 WITH_X264} \
@@ -248,6 +257,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
+%attr(755,root,root) %{_bindir}/freerdp-proxy
 %attr(755,root,root) %{_bindir}/freerdp-shadow-cli
 %attr(755,root,root) %{_bindir}/winpr-hash
 %attr(755,root,root) %{_bindir}/winpr-makecert
@@ -281,7 +291,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files libs
 %defattr(644,root,root,755)
-%doc ChangeLog README
+%doc ChangeLog README.md
 %attr(755,root,root) %{_libdir}/libfreerdp-client%{freerdp_api}.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libfreerdp-client%{freerdp_api}.so.2
 %attr(755,root,root) %{_libdir}/libfreerdp-server%{freerdp_api}.so.*.*.*
