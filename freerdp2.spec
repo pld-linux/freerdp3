@@ -1,25 +1,31 @@
 # TODO:
 # - what is libpcsc-winpr? (-DWITH_PCSC_WINPR)
 # - fix DirectFB client build (orphaned code)
+# - WITH_IPP?
 #
 # Conditional build:
 %bcond_without	alsa		# ALSA sound support
 %bcond_without	cups		# CUPS printing support
 %bcond_with	directfb	# DirectFB client
-%bcond_without	ffmpeg		# FFmpeg audio/video decoding support
-%bcond_without	gsm		# GSM audio codec
+%bcond_without	ffmpeg		# FFmpeg audio/video codecs support (covers H264, GSM, LAME, FAAC, FAAD2, SOXR)
+%bcond_with	faac		# faac for AAC audio coding (if without ffmpeg)
+%bcond_with	faad		# faad2 for AAC audio decoding (if without ffmpeg)
+%bcond_with	gsm		# GSM audio codec (if without ffmpeg)
 %bcond_without	gstreamer	# GStreamer sound support
 # for now the kerberos5 support has to be disabled due to a bad state of its code.
 # See: https://github.com/FreeRDP/FreeRDP/issues/4348
 # See: https://github.com/FreeRDP/FreeRDP/issues/5746
 %bcond_with	kerberos5	# GSSAPI auth support
-%bcond_with	openh264	# OpenH264 for H.264 codec [only if ffmpeg disabled]
+%bcond_with	lame		# LAME for MP3 audio codec (if without ffmpeg)
+%bcond_without	opencl		# OpenCL support
+%bcond_with	openh264	# OpenH264 for H.264 codec (overrides ffmpeg for H264)
 %bcond_without	pcsc		# SmartCard support via PCSC-lite library
 %bcond_without	pulseaudio	# Pulseaudio sound support
+%bcond_with	soxr		# soxr for audio resampling (if without ffmpeg)
 %bcond_without	systemd		# systemd journal support
 %bcond_without	wayland		# Wayland client
 %bcond_without	x11		# X11 client
-%bcond_with	x264		# X264 for H.264 codec [only if ffmpeg and openh264 disabled]
+%bcond_with	x264		# X264 for H.264 codec (only if without ffmpeg and openh264)
 %bcond_without	sse2		# SSE2 and higher instructions (runtime detection with sse patch)
 
 %define	freerdp_api	2
@@ -40,27 +46,33 @@ Patch0:		freerdp-opt.patch
 Patch1:		freerdp-gsm.patch
 URL:		http://www.freerdp.com/
 %{?with_directfb:BuildRequires:	DirectFB-devel}
+%{?with_opencl:BuildRequires:	OpenCL-devel}
 %{?with_alsa:BuildRequires:	alsa-lib-devel}
 %{!?with_ffmpeg:BuildRequires:	cairo-devel}
 BuildRequires:	cmake >= 2.8
 %{?with_cups:BuildRequires:	cups-devel}
 BuildRequires:	desktop-file-utils
 BuildRequires:	docbook-style-xsl
+%{?with_faac:BuildRequires:	faac-devel}
+%{?with_faad:BuildRequires:	faad2-devel >= 2}
 # libavcodec >= 57.48.101, libavresample, libavutil
 %{?with_ffmpeg:BuildRequires:	ffmpeg-devel >= 3.1}
 %{?with_gstreamer:BuildRequires:	gstreamer-devel >= 1.0.5}
 %{?with_gstreamer:BuildRequires:	gstreamer-plugins-base-devel >= 1.0.5}
 # MIT krb5 >= 1.13 also possible
 %{?with_kerberos5:BuildRequires:	heimdal-devel}
+%{?with_lame:BuildRequires:	lame-libs-devel}
 %{?with_gsm:BuildRequires:	libgsm-devel}
 BuildRequires:	libjpeg-devel
 %{?with_x264:BuildRequires:	libx264-devel}
 %{?with_openh264:BuildRequires:	openh264-devel}
+# also mbedtls possible
 BuildRequires:	openssl-devel
 %{?with_pcsc:BuildRequires:	pcsc-lite-devel}
 BuildRequires:	pkgconfig
 %{?with_pulseaudio:BuildRequires:	pulseaudio-devel}
 BuildRequires:	rpmbuild(macros) >= 1.742
+%{?with_soxr:BuildRequires:	soxr-devel}
 %{?with_systemd:BuildRequires:	systemd-devel >= 1:209}
 %{?with_wayland:BuildRequires:	wayland-devel}
 BuildRequires:	xmlto
@@ -206,17 +218,22 @@ cd build
 	%{cmake_on_off cups WITH_CUPS} \
 	-DWITH_DEBUG_LICENSE=ON \
 	%{cmake_on_off directfb WITH_DIRECTFB} \
+	%{cmake_on_off ffmpeg WITH_DSP_FFMPEG} \
+	%{cmake_on_off faac WITH_FAAC} \
+	%{cmake_on_off faad WITH_FAAD2} \
 	%{cmake_on_off ffmpeg WITH_FFMPEG} \
 	%{cmake_on_off gsm WITH_GSM} \
 	%{cmake_on_off gstreamer WITH_GSTREAMER_1_0} \
 	%{cmake_on_off kerberos5 WITH_GSSAPI} \
 	-DWITH_JPEG=ON \
 	%{cmake_on_off systemd WITH_LIBSYSTEMD} \
+	%{cmake_on_off opencl WITH_OPENCL} \
 	%{cmake_on_off openh264 WITH_OPENH264} \
 	-DWITH_OSS=ON \
 	%{cmake_on_off pcsc WITH_PCSC} \
 	%{cmake_on_off pulseaudio WITH_PULSE} \
 	-DWITH_SERVER=ON \
+	%{cmake_on_off soxr WITH_SOXR} \
 	%{cmake_on_off sse2 WITH_SSE2} \
 	%{cmake_on_off ffmpeg WITH_SWSCALE} \
 	%{cmake_on_off wayland WITH_WAYLAND} \
