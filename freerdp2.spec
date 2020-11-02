@@ -44,6 +44,7 @@ Source0:	https://pub.freerdp.com/releases/freerdp-%{version}.tar.gz
 # Source0-md5:	16e7f6063cb0e211eeed83a2fe938462
 Patch0:		freerdp-opt.patch
 Patch1:		freerdp-gsm.patch
+Patch2:		docbook-xsl.patch
 URL:		http://www.freerdp.com/
 %{?with_directfb:BuildRequires:	DirectFB-devel}
 %{?with_opencl:BuildRequires:	OpenCL-devel}
@@ -52,7 +53,7 @@ URL:		http://www.freerdp.com/
 BuildRequires:	cmake >= 2.8
 %{?with_cups:BuildRequires:	cups-devel}
 BuildRequires:	desktop-file-utils
-BuildRequires:	docbook-style-xsl
+BuildRequires:	docbook-style-xsl-nons
 %{?with_faac:BuildRequires:	faac-devel}
 %{?with_faad:BuildRequires:	faad2-devel >= 2}
 # libavcodec >= 57.48.101, libavresample, libavutil
@@ -193,6 +194,7 @@ wykorzystujących biblioteki FreeRDP 2.
 %setup -q -n freerdp-%{version}
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 cat << EOF > xfreerdp.desktop
 [Desktop Entry]
