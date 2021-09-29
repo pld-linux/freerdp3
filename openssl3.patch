@@ -1,0 +1,31 @@
+--- freerdp-2.4.0/winpr/libwinpr/utils/ssl.c.orig	2021-07-27 11:58:27.000000000 +0200
++++ freerdp-2.4.0/winpr/libwinpr/utils/ssl.c	2021-09-29 23:00:16.142585681 +0200
+@@ -32,6 +32,7 @@
+ 
+ #include <openssl/ssl.h>
+ #include <openssl/err.h>
++#include <openssl/evp.h>
+ 
+ #include "../log.h"
+ #define TAG WINPR_TAG("utils.ssl")
+@@ -244,9 +245,9 @@
+ #else
+ 		WLog_DBG(TAG, "Ensuring openssl fips mode is ENabled");
+ 
+-		if (FIPS_mode() != 1)
++		if (EVP_default_properties_is_fips_enabled(NULL) != 1)
+ 		{
+-			if (FIPS_mode_set(1))
++			if (EVP_default_properties_enable_fips(NULL, 1))
+ 				WLog_INFO(TAG, "Openssl fips mode ENabled!");
+ 			else
+ 			{
+@@ -358,7 +358,7 @@
+ #if (OPENSSL_VERSION_NUMBER < 0x10001000L) || defined(LIBRESSL_VERSION_NUMBER)
+ 	return FALSE;
+ #else
+-	return (FIPS_mode() == 1);
++	return (EVP_default_properties_is_fips_enabled(NULL) == 1);
+ #endif
+ }
+ 
