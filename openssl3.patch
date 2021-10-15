@@ -1,31 +1,150 @@
---- freerdp-2.4.0/winpr/libwinpr/utils/ssl.c.orig	2021-07-27 11:58:27.000000000 +0200
-+++ freerdp-2.4.0/winpr/libwinpr/utils/ssl.c	2021-09-29 23:00:16.142585681 +0200
-@@ -32,6 +32,7 @@
- 
- #include <openssl/ssl.h>
- #include <openssl/err.h>
-+#include <openssl/evp.h>
- 
- #include "../log.h"
- #define TAG WINPR_TAG("utils.ssl")
-@@ -244,9 +245,9 @@
+From 26bf2816c3e0daeaf524c47cf0fcda8ae13b65ad Mon Sep 17 00:00:00 2001
+From: Ondrej Holy <oholy@redhat.com>
+Date: Wed, 12 May 2021 12:48:15 +0200
+Subject: [PATCH] Fix FIPS mode support and build with OpenSSL 3.0
+
+FreeRDP fails to build with OpenSSL 3.0 because of usage of the `FIPS_mode`
+and `FIPS_mode_set` functions, which were removed there. Just a note that
+the FIPS mode is not supported by OpenSSL 1.1.* although the mentioned
+functions are still there (see https://wiki.openssl.org/index.php/FIPS_modules).
+Let's make FreeRDP build with OpenSSL 3.0 and fix the FIPS mode support.
+
+See: https://bugzilla.redhat.com/show_bug.cgi?id=1952937
+---
+ winpr/libwinpr/utils/ssl.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/winpr/libwinpr/utils/ssl.c b/winpr/libwinpr/utils/ssl.c
+index 3a859039034..03b23af43ac 100644
+--- a/winpr/libwinpr/utils/ssl.c
++++ b/winpr/libwinpr/utils/ssl.c
+@@ -244,9 +244,17 @@ static BOOL winpr_enable_fips(DWORD flags)
  #else
  		WLog_DBG(TAG, "Ensuring openssl fips mode is ENabled");
  
--		if (FIPS_mode() != 1)
-+		if (EVP_default_properties_is_fips_enabled(NULL) != 1)
++#if defined(OPENSSL_VERSION_MAJOR) && (OPENSSL_VERSION_MAJOR >= 3)
++		if (!EVP_default_properties_is_fips_enabled(NULL))
++#else
+ 		if (FIPS_mode() != 1)
++#endif
  		{
--			if (FIPS_mode_set(1))
-+			if (EVP_default_properties_enable_fips(NULL, 1))
++#if defined(OPENSSL_VERSION_MAJOR) && (OPENSSL_VERSION_MAJOR >= 3)
++			if (EVP_set_default_properties(NULL, "fips=yes"))
++#else
+ 			if (FIPS_mode_set(1))
++#endif
  				WLog_INFO(TAG, "Openssl fips mode ENabled!");
  			else
  			{
-@@ -358,7 +358,7 @@
+From 0c81c73c8d770fd5ffbc541dc176da515b66686b Mon Sep 17 00:00:00 2001
+From: Mike Gilbert <floppym@gentoo.org>
+Date: Sun, 1 Aug 2021 12:14:43 -0400
+Subject: [PATCH] winpr: avoid calling FIPS_mode() with OpenSSL 3.0
+
+Fixes: 26bf2816c3e0daeaf524c47cf0fcda8ae13b65ad
+---
+ winpr/libwinpr/utils/ssl.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/winpr/libwinpr/utils/ssl.c b/winpr/libwinpr/utils/ssl.c
+index 03b23af43ac..74ef156e7b0 100644
+--- a/winpr/libwinpr/utils/ssl.c
++++ b/winpr/libwinpr/utils/ssl.c
+@@ -364,6 +364,8 @@ BOOL winpr_FIPSMode(void)
+ {
  #if (OPENSSL_VERSION_NUMBER < 0x10001000L) || defined(LIBRESSL_VERSION_NUMBER)
  	return FALSE;
- #else
--	return (FIPS_mode() == 1);
++#elif defined(OPENSSL_VERSION_MAJOR) && (OPENSSL_VERSION_MAJOR >= 3)
 +	return (EVP_default_properties_is_fips_enabled(NULL) == 1);
+ #else
+ 	return (FIPS_mode() == 1);
  #endif
- }
+From a79e09d97435bfdf4fdd439d76d847ba8dcbb445 Mon Sep 17 00:00:00 2001
+From: Ondrej Holy <oholy@redhat.com>
+Date: Tue, 3 Aug 2021 08:39:21 +0200
+Subject: [PATCH 1/2] winpr/crypto: Exit cleanly when EVP_EncryptInit_ex fails
+
+The `EVP_EncryptInit_ex` function may fail in certain configurations.
+Consequently, FreeRDP segfaults in `EVP_CIPHER_CTX_set_key_length`.
+Let's handle the `EVP_EncryptInit_ex` failures and exit cleanly in
+such case.
+---
+ winpr/libwinpr/crypto/cipher.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/winpr/libwinpr/crypto/cipher.c b/winpr/libwinpr/crypto/cipher.c
+index c47595b145d..bd52cfeedb6 100644
+--- a/winpr/libwinpr/crypto/cipher.c
++++ b/winpr/libwinpr/crypto/cipher.c
+@@ -66,7 +66,12 @@ static WINPR_RC4_CTX* winpr_RC4_New_Internal(const BYTE* key, size_t keylen, BOO
+ 		return NULL;
+ 
+ 	EVP_CIPHER_CTX_init((EVP_CIPHER_CTX*)ctx);
+-	EVP_EncryptInit_ex((EVP_CIPHER_CTX*)ctx, evp, NULL, NULL, NULL);
++	if (EVP_EncryptInit_ex((EVP_CIPHER_CTX*)ctx, evp, NULL, NULL, NULL) != 1)
++	{
++		EVP_CIPHER_CTX_free ((EVP_CIPHER_CTX*)ctx);
++		return NULL;
++	}
++
+ 	/* EVP_CIPH_FLAG_NON_FIPS_ALLOW does not exist before openssl 1.0.1 */
+ #if !(OPENSSL_VERSION_NUMBER < 0x10001000L)
+ 
+@@ -75,7 +80,11 @@ static WINPR_RC4_CTX* winpr_RC4_New_Internal(const BYTE* key, size_t keylen, BOO
+ 
+ #endif
+ 	EVP_CIPHER_CTX_set_key_length((EVP_CIPHER_CTX*)ctx, keylen);
+-	EVP_EncryptInit_ex((EVP_CIPHER_CTX*)ctx, NULL, NULL, key, NULL);
++	if (EVP_EncryptInit_ex((EVP_CIPHER_CTX*)ctx, NULL, NULL, key, NULL) != 1)
++	{
++		EVP_CIPHER_CTX_free ((EVP_CIPHER_CTX*)ctx);
++		return NULL;
++	}
+ #elif defined(WITH_MBEDTLS) && defined(MBEDTLS_ARC4_C)
+ 
+ 	if (!(ctx = (WINPR_RC4_CTX*)calloc(1, sizeof(mbedtls_arc4_context))))
+
+From e1f63dba5c63302b8a5e9d33c9ffe5580105de72 Mon Sep 17 00:00:00 2001
+From: Ondrej Holy <oholy@redhat.com>
+Date: Tue, 3 Aug 2021 08:47:13 +0200
+Subject: [PATCH 2/2] winpr/crypto: Load legacy provider to fix rc4 with
+ OpenSSL 3.0
+
+Currently, the `EVP_EncryptInit_ex` function fails for rc4 with OpenSSL 3.0.
+This is becuase rc4 is provided by the legacy provider which is not loaded
+by default. Let's explicitly load the legacy provider to make FreeRDP work
+with OpenSSL 3.0.
+
+Relates: https://github.com/openssl/openssl/issues/14392
+Fixes: https://github.com/FreeRDP/FreeRDP/issues/6604
+---
+ winpr/libwinpr/crypto/cipher.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/winpr/libwinpr/crypto/cipher.c b/winpr/libwinpr/crypto/cipher.c
+index bd52cfeedb6..75d25a1c79c 100644
+--- a/winpr/libwinpr/crypto/cipher.c
++++ b/winpr/libwinpr/crypto/cipher.c
+@@ -29,6 +29,9 @@
+ #include <openssl/rc4.h>
+ #include <openssl/des.h>
+ #include <openssl/evp.h>
++#if defined(OPENSSL_VERSION_MAJOR) && (OPENSSL_VERSION_MAJOR >= 3)
++#include <openssl/provider.h>
++#endif
+ #endif
+ 
+ #ifdef WITH_MBEDTLS
+@@ -57,6 +60,12 @@ static WINPR_RC4_CTX* winpr_RC4_New_Internal(const BYTE* key, size_t keylen, BOO
+ 
+ #if defined(WITH_OPENSSL)
+ 
++
++#if defined(OPENSSL_VERSION_MAJOR) && (OPENSSL_VERSION_MAJOR >= 3)
++	if (OSSL_PROVIDER_load(NULL, "legacy") == NULL)
++		return NULL;
++#endif
++
+ 	if (!(ctx = (WINPR_RC4_CTX*)EVP_CIPHER_CTX_new()))
+ 		return NULL;
  
