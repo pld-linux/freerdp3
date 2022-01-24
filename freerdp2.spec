@@ -45,6 +45,7 @@ Source0:	https://pub.freerdp.com/releases/freerdp-%{version}.tar.gz
 Patch0:		freerdp-opt.patch
 Patch1:		freerdp-gsm.patch
 Patch2:		docbook-xsl.patch
+Patch3:		ffmpeg5.patch
 URL:		http://www.freerdp.com/
 %{?with_directfb:BuildRequires:	DirectFB-devel}
 %{?with_opencl:BuildRequires:	OpenCL-devel}
@@ -195,6 +196,7 @@ wykorzystujących biblioteki FreeRDP 2.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 cat << EOF > xfreerdp.desktop
 [Desktop Entry]

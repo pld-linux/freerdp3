@@ -1,0 +1,24 @@
+--- freerdp-2.5.0/channels/tsmf/client/ffmpeg/tsmf_ffmpeg.c.orig	2022-01-12 10:55:33.000000000 +0100
++++ freerdp-2.5.0/channels/tsmf/client/ffmpeg/tsmf_ffmpeg.c	2022-01-24 13:55:06.447554471 +0100
+@@ -615,7 +615,9 @@
+ static INIT_ONCE g_Initialized = INIT_ONCE_STATIC_INIT;
+ static BOOL CALLBACK InitializeAvCodecs(PINIT_ONCE once, PVOID param, PVOID* context)
+ {
++#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 137, 100)
+ 	avcodec_register_all();
++#endif
+ 	return TRUE;
+ }
+ 
+--- freerdp-2.5.0/libfreerdp/codec/dsp_ffmpeg.c.orig	2022-01-24 14:27:49.787885307 +0100
++++ freerdp-2.5.0/libfreerdp/codec/dsp_ffmpeg.c	2022-01-24 14:28:58.954285682 +0100
+@@ -571,7 +571,9 @@
+ FREERDP_DSP_CONTEXT* freerdp_dsp_ffmpeg_context_new(BOOL encode)
+ {
+ 	FREERDP_DSP_CONTEXT* context;
++#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 137, 100)
+ 	avcodec_register_all();
++#endif
+ 	context = calloc(1, sizeof(FREERDP_DSP_CONTEXT));
+ 
+ 	if (!context)
