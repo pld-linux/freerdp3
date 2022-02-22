@@ -25,7 +25,6 @@
 %bcond_without	systemd		# systemd journal support
 %bcond_without	wayland		# Wayland client
 %bcond_without	x11		# X11 client
-%bcond_with	x264		# X264 for H.264 codec (only if without ffmpeg and openh264)
 %bcond_without	sse2		# SSE2 and higher instructions (runtime detection with sse patch)
 
 %define	freerdp_api	2
@@ -36,16 +35,15 @@
 Summary:	Remote Desktop Protocol client
 Summary(pl.UTF-8):	Klient protokołu RDP
 Name:		freerdp2
-Version:	2.5.0
+Version:	2.6.0
 Release:	1
 License:	Apache v2.0
 Group:		Applications/Communications
 Source0:	https://pub.freerdp.com/releases/freerdp-%{version}.tar.gz
-# Source0-md5:	eec57a052eaaee74d3467cc74710283e
+# Source0-md5:	3cd5128bc1e6b3822bb84def76245808
 Patch0:		freerdp-opt.patch
 Patch1:		freerdp-gsm.patch
 Patch2:		docbook-xsl.patch
-Patch3:		ffmpeg5.patch
 URL:		http://www.freerdp.com/
 %{?with_directfb:BuildRequires:	DirectFB-devel}
 %{?with_opencl:BuildRequires:	OpenCL-devel}
@@ -66,7 +64,6 @@ BuildRequires:	docbook-style-xsl-nons
 %{?with_lame:BuildRequires:	lame-libs-devel}
 %{?with_gsm:BuildRequires:	libgsm-devel}
 BuildRequires:	libjpeg-devel
-%{?with_x264:BuildRequires:	libx264-devel}
 %{?with_openh264:BuildRequires:	openh264-devel}
 # also mbedtls possible
 BuildRequires:	openssl-devel
@@ -196,7 +193,6 @@ wykorzystujących biblioteki FreeRDP 2.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
-%patch3 -p1
 
 cat << EOF > xfreerdp.desktop
 [Desktop Entry]
@@ -242,7 +238,6 @@ cd build
 	%{cmake_on_off ffmpeg WITH_SWSCALE} \
 	%{cmake_on_off wayland WITH_WAYLAND} \
 	%{cmake_on_off x11 WITH_X11} \
-	%{cmake_on_off x264 WITH_X264} \
 	-DWITH_XCURSOR=ON \
 	-DWITH_XEXT=ON \
 	-DWITH_XINERAMA=ON \
