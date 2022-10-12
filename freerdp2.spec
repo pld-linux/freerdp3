@@ -64,6 +64,7 @@ BuildRequires:	docbook-style-xsl-nons
 %{?with_lame:BuildRequires:	lame-libs-devel}
 %{?with_gsm:BuildRequires:	libgsm-devel}
 BuildRequires:	libjpeg-devel
+BuildRequires:	libusb-devel
 %{?with_openh264:BuildRequires:	openh264-devel}
 # also mbedtls possible
 BuildRequires:	openssl-devel
