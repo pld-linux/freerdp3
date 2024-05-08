@@ -36,7 +36,7 @@ Summary:	Remote Desktop Protocol client
 Summary(pl.UTF-8):	Klient protokołu RDP
 Name:		freerdp2
 Version:	2.11.7
-Release:	1
+Release:	2
 License:	Apache v2.0
 Group:		Applications/Communications
 Source0:	https://pub.freerdp.com/releases/freerdp-%{version}.tar.gz
@@ -131,6 +131,7 @@ Summary:	Wayland based Remote Desktop Protocol klient
 Summary(pl.UTF-8):	Klient protokołu RDP oparty na Wayland
 Group:		Applications/Communications
 Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}-libuwac = %{version}-%{release}
 
 %description wayland
 Wayland based Remote Desktop Protocol klient.
@@ -188,6 +189,31 @@ that use FreeRDP 2 libraries.
 %description devel -l pl.UTF-8
 Ten pakiet zawiera pliki nagłówkowe do tworzenia aplikacji
 wykorzystujących biblioteki FreeRDP 2.
+
+%package libuwac
+Summary:	uwac: using wayland as a client
+Summary(pl.UTF-8):	Biblioteka uwac pozwalająca na korzystanie z waylanda jako klienta
+Group:		Libraries
+Requires:	%{name}-libs = %{version}-%{release}
+
+%description libuwac
+uwac library for using wayland as a client.
+
+%description libuwac -l pl.UTF-8
+Biblioteka uwac pozwalająca na korzystanie z waylanda jako klienta.
+
+%package libuwac-devel
+Summary:	Header files for uwac library
+Summary(pl.UTF-8):	Pliki nagłówkowe biblioteki uwac
+Group:		Development/Libraries
+Requires:	%{name}-libuwac = %{version}-%{release}
+Requires:	wayland-devel
+
+%description libuwac-devel
+Header files for uwac library.
+
+%description libuwac-devel -l pl.UTF-8
+Pliki nagłówkowe biblioteki uwac.
 
 %prep
 %setup -q -n freerdp-%{version}
@@ -316,8 +342,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %ghost %{_libdir}/libfreerdp-shadow-subsystem%{freerdp_api}.so.2
 %attr(755,root,root) %{_libdir}/libfreerdp%{freerdp_api}.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libfreerdp%{freerdp_api}.so.2
-%attr(755,root,root) %{_libdir}/libuwac0.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libuwac0.so.0
 %attr(755,root,root) %{_libdir}/libwinpr%{freerdp_api}.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libwinpr%{freerdp_api}.so.2
 %attr(755,root,root) %{_libdir}/libwinpr-tools%{freerdp_api}.so.*.*.*
@@ -330,17 +354,14 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libfreerdp-shadow%{freerdp_api}.so
 %attr(755,root,root) %{_libdir}/libfreerdp-shadow-subsystem%{freerdp_api}.so
 %attr(755,root,root) %{_libdir}/libfreerdp%{freerdp_api}.so
-%attr(755,root,root) %{_libdir}/libuwac0.so
 %attr(755,root,root) %{_libdir}/libwinpr%{freerdp_api}.so
 %attr(755,root,root) %{_libdir}/libwinpr-tools%{freerdp_api}.so
 %{_includedir}/freerdp2
-%{_includedir}/uwac0
 %{_includedir}/winpr2
 %{_pkgconfigdir}/freerdp-client2.pc
 %{_pkgconfigdir}/freerdp-server2.pc
 %{_pkgconfigdir}/freerdp-shadow2.pc
 %{_pkgconfigdir}/freerdp2.pc
-%{_pkgconfigdir}/uwac0.pc
 %{_pkgconfigdir}/winpr-tools2.pc
 %{_pkgconfigdir}/winpr2.pc
 %{_libdir}/cmake/FreeRDP-Client2
@@ -348,4 +369,15 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/cmake/FreeRDP-Shadow2
 %{_libdir}/cmake/FreeRDP2
 %{_libdir}/cmake/WinPR2
+
+%files libuwac
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/libuwac0.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libuwac0.so.0
+
+%files libuwac-devel
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/libuwac0.so
+%{_includedir}/uwac0
+%{_pkgconfigdir}/uwac0.pc
 %{_libdir}/cmake/uwac0
