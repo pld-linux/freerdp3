@@ -1,6 +1,6 @@
---- FreeRDP-a132545545ef90534a64a08f5199741502de97e5/CMakeLists.txt.orig	2016-06-30 22:43:05.000000000 +0200
-+++ FreeRDP-a132545545ef90534a64a08f5199741502de97e5/CMakeLists.txt	2016-07-02 17:12:00.937002199 +0200
-@@ -174,21 +174,6 @@
+--- freerdp-3.5.1/CMakeLists.txt.orig	2024-04-22 11:18:39.000000000 +0200
++++ freerdp-3.5.1/CMakeLists.txt	2024-05-08 17:55:41.882600394 +0200
+@@ -204,15 +204,6 @@ endif(EXPORT_ALL_SYMBOLS)
  
  # Compiler-specific flags
  if(CMAKE_COMPILER_IS_GNUCC)
@@ -11,14 +11,8 @@
 -		else()
 -			set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=i686")
 -		endif()
--	else()
--		if(CMAKE_POSITION_INDEPENDENT_CODE)
--			if(${CMAKE_VERSION} VERSION_LESS 2.8.9)
--				set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
--			endif()
--		endif()
 -	endif()
 -
  	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
  
- 	CHECK_C_COMPILER_FLAG (-Wno-unused-result Wno-unused-result)
+ 	if(NOT EXPORT_ALL_SYMBOLS)
