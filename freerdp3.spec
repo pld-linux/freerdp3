@@ -213,6 +213,7 @@ Summary(pl.UTF-8):	Biblioteka uwac pozwalająca na korzystanie z waylanda jako k
 Group:		Libraries
 Requires:	%{name}-libs = %{version}-%{release}
 Obsoletes:	freerdp2-libuwac < 3
+Conflicts:	freerdp2-libs < 2.11.7-2
 
 %description libuwac
 uwac library for using wayland as a client.
@@ -227,6 +228,7 @@ Group:		Development/Libraries
 Requires:	%{name}-libuwac = %{version}-%{release}
 Requires:	wayland-devel
 Obsoletes:	freerdp2-libuwac-devel < 3
+Conflicts:	freerdp2-devel < 2.11.7-2
 
 %description libuwac-devel
 Header files for uwac library.
