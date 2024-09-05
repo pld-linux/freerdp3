@@ -9,6 +9,7 @@
 %bcond_without	ffmpeg		# FFmpeg audio/video codecs support (covers H264, GSM, LAME, FAAC, FAAD2, SOXR)
 %bcond_with	faac		# faac for AAC audio coding (if without ffmpeg)
 %bcond_with	faad		# faad2 for AAC audio decoding (if without ffmpeg)
+%bcond_without	fdk_aac		# fdk-aac for AAC audio encoding and decoding 
 %bcond_with	gsm		# GSM audio codec (if without ffmpeg)
 %bcond_without	gstreamer	# GStreamer sound support
 %bcond_without	kerberos5	# Kerberos authentication support
@@ -18,6 +19,7 @@
 %bcond_with	opus		# OPUS audio codec (if without ffmpeg)
 %bcond_without	pcsc		# SmartCard support via PCSC-lite library
 %bcond_without	pulseaudio	# Pulseaudio sound support
+%bcond_without	rdpecam_client	# MS-RDPECAM client channel support (requires ffmpeg)
 %bcond_without	sdl		# SDL client
 %bcond_with	soxr		# soxr for audio resampling (if without ffmpeg)
 %bcond_without	systemd		# systemd journal support
@@ -30,21 +32,27 @@
 %ifnarch %{ix86} %{x8664} x32
 %undefine	with_sse2
 %endif
+
+%if %{without ffmpeg}
+%undefine	with_rdpecam_client
+%endif
+
 Summary:	Remote Desktop Protocol client
 Summary(pl.UTF-8):	Klient protokołu RDP
 Name:		freerdp3
-Version:	3.5.1
+Version:	3.8.0
 Release:	1
 License:	Apache v2.0
 Group:		Applications/Communications
 Source0:	https://pub.freerdp.com/releases/freerdp-%{version}.tar.xz
-# Source0-md5:	b0a0a06fd3869bb9fc2abc36d36217fa
+# Source0-md5:	18ee849b965b53b877fca7575e5c6d8f
 Patch0:		freerdp-opt.patch
 Patch1:		freerdp-gsm.patch
 Patch2:		docbook-xsl.patch
 URL:		https://www.freerdp.com/
 %{?with_opencl:BuildRequires:	OpenCL-devel}
 %{?with_sdl:BuildRequires:	SDL2-devel >= 2.0}
+%{?with_sdl:BuildRequires:	SDL2_image-devel >= 2.0}
 %{?with_sdl:BuildRequires:	SDL2_ttf-devel >= 2.0}
 %{?with_alsa:BuildRequires:	alsa-lib-devel}
 %{!?with_ffmpeg:BuildRequires:	cairo-devel}
@@ -55,6 +63,7 @@ BuildRequires:	desktop-file-utils
 BuildRequires:	docbook-style-xsl-nons
 %{?with_faac:BuildRequires:	faac-devel}
 %{?with_faad:BuildRequires:	faad2-devel >= 2}
+%{?with_fdk_aac:BuildRequires:	fdk-aac-devel}
 # libavcodec >= 57.48.101, libavresample, libavutil
 %{?with_ffmpeg:BuildRequires:	ffmpeg-devel >= 3.1}
 BuildRequires:	gcc >= 6:4.7
@@ -73,6 +82,7 @@ BuildRequires:	libjpeg-devel
 BuildRequires:	libpng-devel
 BuildRequires:	libusb-devel >= 1.0
 BuildRequires:	libwebp-devel
+%{?with_rdpecam_client:BuildRequires:	libv4l-devel}
 %{?with_openh264:BuildRequires:	openh264-devel}
 # also mbedtls possible
 BuildRequires:	openssl-devel
@@ -264,12 +274,14 @@ EOF
 	%{cmake_on_off alsa WITH_ALSA} \
 	%{!?with_ffmpeg:-DWITH_CAIRO=ON} \
 	%{cmake_on_off sdl WITH_CLIENT_SDL} \
+	%{cmake_on_off sdl WITH_SDL_IMAGE_DIALOGS} \
 	-DWITH_CUNIT=OFF \
 	%{cmake_on_off cups WITH_CUPS} \
 	-DWITH_DEBUG_LICENSE=ON \
 	%{cmake_on_off ffmpeg WITH_DSP_FFMPEG} \
 	%{cmake_on_off faac WITH_FAAC} \
 	%{cmake_on_off faad WITH_FAAD2} \
+	%{cmake_on_off fdk_aac WITH_FDK_AAC} \
 	%{cmake_on_off ffmpeg WITH_FFMPEG} \
 	%{cmake_on_off gsm WITH_GSM} \
 	%{cmake_on_off gstreamer WITH_GSTREAMER_1_0} \
@@ -282,10 +294,12 @@ EOF
 	-DWITH_OSS=ON \
 	%{cmake_on_off pcsc WITH_PCSC} \
 	%{cmake_on_off pulseaudio WITH_PULSE} \
+	%{cmake_on_off rdpecam_client CHANNEL_RDPECAM_CLIENT} \
 	-DWITH_SERVER=ON \
 	%{cmake_on_off soxr WITH_SOXR} \
 	%{cmake_on_off sse2 WITH_SSE2} \
 	%{cmake_on_off ffmpeg WITH_SWSCALE} \
+	-DWITH_TIMEZONE_ICU=ON \
 	%{cmake_on_off ffmpeg WITH_VAAPI} \
 	%{cmake_on_off ffmpeg WITH_VIDEO_FFMPEG} \
 	%{cmake_on_off wayland WITH_WAYLAND} \
