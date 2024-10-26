@@ -41,13 +41,14 @@ Summary:	Remote Desktop Protocol client
 Summary(pl.UTF-8):	Klient protokołu RDP
 Name:		freerdp3
 Version:	3.9.0
-Release:	1
+Release:	2
 License:	Apache v2.0
 Group:		Applications/Communications
 Source0:	https://pub.freerdp.com/releases/freerdp-%{version}.tar.xz
 # Source0-md5:	bc2a02e5eeae0ae17027f64d16de1cc5
 Patch0:		freerdp-opt.patch
 Patch1:		freerdp-gsm.patch
+Patch2:		freerdp-heimdal.patch
 URL:		https://www.freerdp.com/
 %{?with_opencl:BuildRequires:	OpenCL-devel}
 %{?with_sdl:BuildRequires:	SDL2-devel >= 2.0}
@@ -69,9 +70,10 @@ BuildRequires:	gcc >= 6:4.7
 BuildRequires:	glib2-devel >= 2.0
 %{?with_gstreamer:BuildRequires:	gstreamer-devel >= 1.0.5}
 %{?with_gstreamer:BuildRequires:	gstreamer-plugins-base-devel >= 1.0.5}
-BuildRequires:	gtk-webkit4-devel
+# or gtk-webkit4
+BuildRequires:	gtk-webkit4.1-devel
 BuildRequires:	gtk+3-devel >= 3.0
-# or MIT krb5 >= 1.14
+# or MIT krb5 >= 1.14 (without heimdal patch)
 %{?with_kerberos5:BuildRequires:	heimdal-devel}
 %{?with_lame:BuildRequires:	lame-libs-devel}
 BuildRequires:	libfuse3-devel >= 3
@@ -249,6 +251,7 @@ Pliki nagłówkowe biblioteki uwac.
 %setup -q -n freerdp-%{version}
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 cat << EOF > xfreerdp.desktop
 [Desktop Entry]
@@ -301,6 +304,7 @@ EOF
 	%{cmake_on_off ffmpeg WITH_VAAPI} \
 	%{cmake_on_off ffmpeg WITH_VIDEO_FFMPEG} \
 	%{cmake_on_off wayland WITH_WAYLAND} \
+	-DWITH_WEBVIEW=ON \
 	%{cmake_on_off x11 WITH_X11} \
 	-DWITH_XCURSOR=ON \
 	-DWITH_XEXT=ON \
