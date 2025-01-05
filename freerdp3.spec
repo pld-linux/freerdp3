@@ -209,6 +209,7 @@ Summary:	Development files for FreeRDP 2 libraries
 Summary(pl.UTF-8):	Pliki programistyczne bibliotek FreeRDP 2
 Group:		Development/Libraries
 Requires:	%{name}-libs = %{version}-%{release}
+Requires:	libfuse3-devel >= 3
 
 %description devel
 This package contains the header files for developing applications
