@@ -25,12 +25,13 @@
 %bcond_without	systemd		# systemd journal support
 %bcond_without	wayland		# Wayland client
 %bcond_without	x11		# X11 client
-%bcond_without	sse2		# SSE2 and higher instructions (runtime detection with sse patch)
+%bcond_without	simd		# SSE2/SSE3/SSE4/AVX2 x86 instructions (runtime detection)
 
 %define	freerdp_api	3
 
+# also ARM with neon?
 %ifnarch %{ix86} %{x8664} x32
-%undefine	with_sse2
+%undefine	with_simd
 %endif
 
 %if %{without ffmpeg}
@@ -299,7 +300,7 @@ EOF
 	%{cmake_on_off rdpecam_client CHANNEL_RDPECAM_CLIENT} \
 	-DWITH_SERVER=ON \
 	%{cmake_on_off soxr WITH_SOXR} \
-	%{cmake_on_off sse2 WITH_SIMD} \
+	%{cmake_on_off simd WITH_SIMD} \
 	%{cmake_on_off ffmpeg WITH_SWSCALE} \
 	-DWITH_TIMEZONE_ICU=ON \
 	%{cmake_on_off ffmpeg WITH_VAAPI} \
