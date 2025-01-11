@@ -1,18 +1,31 @@
---- freerdp-3.5.1/CMakeLists.txt.orig	2024-04-22 11:18:39.000000000 +0200
-+++ freerdp-3.5.1/CMakeLists.txt	2024-05-08 17:55:41.882600394 +0200
-@@ -204,15 +204,6 @@ endif(EXPORT_ALL_SYMBOLS)
+diff -up freerdp-3.10.2/CMakeLists.txt.orig freerdp-3.10.2/CMakeLists.txt
+--- freerdp-3.10.2/CMakeLists.txt.orig	2025-01-07 18:49:01.377874043 +0100
++++ freerdp-3.10.2/CMakeLists.txt	2025-01-07 18:51:50.803487531 +0100
+@@ -210,15 +210,6 @@ endif(EXPORT_ALL_SYMBOLS)
  
  # Compiler-specific flags
  if(CMAKE_COMPILER_IS_GNUCC)
--	if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64" OR CMAKE_SYSTEM_PROCESSOR MATCHES "i686")
--		CHECK_SYMBOL_EXISTS(__x86_64__ "" IS_X86_64)
--		if(IS_X86_64)
--			set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
--		else()
--			set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=i686")
--		endif()
--	endif()
+-  if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64" OR CMAKE_SYSTEM_PROCESSOR MATCHES "i686")
+-    check_symbol_exists(__x86_64__ "" IS_X86_64)
+-    if(IS_X86_64)
+-      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+-    else()
+-      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=i686")
+-    endif()
+-  endif()
 -
- 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
+   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
  
- 	if(NOT EXPORT_ALL_SYMBOLS)
+   if(NOT EXPORT_ALL_SYMBOLS)
+diff -up freerdp-3.10.2/cmake/CommonConfigOptions.cmake._orig freerdp-3.10.2/cmake/CommonConfigOptions.cmake
+--- freerdp-3.10.2/cmake/CommonConfigOptions.cmake._orig	2024-12-16 14:22:36.000000000 +0100
++++ freerdp-3.10.2/cmake/CommonConfigOptions.cmake	2025-01-07 19:02:10.879654349 +0100
+@@ -30,7 +30,7 @@ if(NOT ANDROID)
+   option(CMAKE_INTERPROCEDURAL_OPTIMIZATION "build with link time optimization" ${supported})
+ endif()
+ 
+-set(SUPPORTED_BUILD_TYPES "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
++set(SUPPORTED_BUILD_TYPES "Debug" "Release" "MinSizeRel" "RelWithDebInfo" "PLD")
+ 
+ # Default to release build type
+ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)

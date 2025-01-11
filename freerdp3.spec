@@ -40,12 +40,12 @@
 Summary:	Remote Desktop Protocol client
 Summary(pl.UTF-8):	Klient protokołu RDP
 Name:		freerdp3
-Version:	3.9.0
-Release:	2
+Version:	3.10.2
+Release:	1
 License:	Apache v2.0
 Group:		Applications/Communications
 Source0:	https://pub.freerdp.com/releases/freerdp-%{version}.tar.xz
-# Source0-md5:	bc2a02e5eeae0ae17027f64d16de1cc5
+# Source0-md5:	8fa99d966a2661511540500e3399c900
 Patch0:		freerdp-opt.patch
 Patch1:		freerdp-gsm.patch
 Patch2:		freerdp-heimdal.patch
@@ -299,7 +299,7 @@ EOF
 	%{cmake_on_off rdpecam_client CHANNEL_RDPECAM_CLIENT} \
 	-DWITH_SERVER=ON \
 	%{cmake_on_off soxr WITH_SOXR} \
-	%{cmake_on_off sse2 WITH_SSE2} \
+	%{cmake_on_off sse2 WITH_SIMD} \
 	%{cmake_on_off ffmpeg WITH_SWSCALE} \
 	-DWITH_TIMEZONE_ICU=ON \
 	%{cmake_on_off ffmpeg WITH_VAAPI} \
@@ -325,9 +325,6 @@ rm -rf $RPM_BUILD_ROOT
 
 desktop-file-install --dir=$RPM_BUILD_ROOT%{_desktopdir} xfreerdp.desktop
 install -p -D resources/FreeRDP_Icon_256px.png $RPM_BUILD_ROOT%{_datadir}/icons/hicolor/256x256/apps/%{name}.png
-
-# empty dirs
-rmdir $RPM_BUILD_ROOT%{_includedir}/{rdtk0/CMakeFiles,uwac0/CMakeFiles,winpr3/CMakeFiles,winpr3/config}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
