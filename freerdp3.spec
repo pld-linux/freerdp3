@@ -41,12 +41,12 @@
 Summary:	Remote Desktop Protocol client
 Summary(pl.UTF-8):	Klient protokołu RDP
 Name:		freerdp3
-Version:	3.10.2
-Release:	2
+Version:	3.10.3
+Release:	1
 License:	Apache v2.0
 Group:		Applications/Communications
 Source0:	https://pub.freerdp.com/releases/freerdp-%{version}.tar.xz
-# Source0-md5:	8fa99d966a2661511540500e3399c900
+# Source0-md5:	f9f644f041569834729fc0fc4bd9b62d
 Patch0:		freerdp-opt.patch
 Patch1:		freerdp-gsm.patch
 Patch2:		freerdp-heimdal.patch
