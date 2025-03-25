@@ -21,6 +21,7 @@
 %bcond_without	pulseaudio	# Pulseaudio sound support
 %bcond_without	rdpecam_client	# MS-RDPECAM client channel support (requires ffmpeg)
 %bcond_without	sdl		# SDL client
+%bcond_with	sdl3		# SDL3 instead of SDL2
 %bcond_with	soxr		# soxr for audio resampling (if without ffmpeg)
 %bcond_without	systemd		# systemd journal support
 %bcond_without	wayland		# Wayland client
@@ -41,20 +42,28 @@
 Summary:	Remote Desktop Protocol client
 Summary(pl.UTF-8):	Klient protokołu RDP
 Name:		freerdp3
-Version:	3.10.3
+Version:	3.14.1
 Release:	1
 License:	Apache v2.0
 Group:		Applications/Communications
 Source0:	https://pub.freerdp.com/releases/freerdp-%{version}.tar.xz
-# Source0-md5:	f9f644f041569834729fc0fc4bd9b62d
+# Source0-md5:	d70f89bd3f84c9b1ec4598e0f06d8f1c
 Patch0:		freerdp-opt.patch
 Patch1:		freerdp-gsm.patch
 Patch2:		freerdp-heimdal.patch
 URL:		https://www.freerdp.com/
 %{?with_opencl:BuildRequires:	OpenCL-devel}
-%{?with_sdl:BuildRequires:	SDL2-devel >= 2.0}
-%{?with_sdl:BuildRequires:	SDL2_image-devel >= 2.0}
-%{?with_sdl:BuildRequires:	SDL2_ttf-devel >= 2.0}
+%if %{with sdl}
+%if %{with sdl3}
+BuildRequires:	SDL3-devel >= 3.0
+BuildRequires:	SDL3_image-devel >= 3.0
+BuildRequires:	SDL3_ttf-devel >= 3.0
+%else
+BuildRequires:	SDL2-devel >= 2.0.20
+BuildRequires:	SDL2_image-devel >= 2.0
+BuildRequires:	SDL2_ttf-devel >= 2.0
+%endif
+%endif
 %{?with_alsa:BuildRequires:	alsa-lib-devel}
 %{!?with_ffmpeg:BuildRequires:	cairo-devel}
 BuildRequires:	cjson-devel
@@ -277,6 +286,8 @@ EOF
 	%{cmake_on_off alsa WITH_ALSA} \
 	%{!?with_ffmpeg:-DWITH_CAIRO=ON} \
 	%{cmake_on_off sdl WITH_CLIENT_SDL} \
+	%{?with_sdl3:-DWITH_CLIENT_SDL2=OFF} \
+	%{!?with_sdl3:-DWITH_CLIENT_SDL3=OFF} \
 	%{cmake_on_off sdl WITH_SDL_IMAGE_DIALOGS} \
 	-DWITH_CUNIT=OFF \
 	%{cmake_on_off cups WITH_CUPS} \
