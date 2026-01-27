@@ -4,6 +4,7 @@
 # - WITH_IPP?
 #
 # Conditional build:
+%bcond_with	debug_license	# license debugging messages (may reveal sensitive information)
 %bcond_without	alsa		# ALSA sound support
 %bcond_without	cups		# CUPS printing support
 %bcond_without	ffmpeg		# FFmpeg audio/video codecs support (covers H264, GSM, LAME, FAAC, FAAD2, SOXR)
@@ -42,15 +43,16 @@
 Summary:	Remote Desktop Protocol client
 Summary(pl.UTF-8):	Klient protokołu RDP
 Name:		freerdp3
-Version:	3.15.0
-Release:	3
+Version:	3.21.0
+Release:	1
 License:	Apache v2.0
 Group:		Applications/Communications
 Source0:	https://pub.freerdp.com/releases/freerdp-%{version}.tar.xz
-# Source0-md5:	3f62db0b366de62c5c45a03f6b627c08
+# Source0-md5:	cd5a80afd144d005e9d19cda727f4258
+Source1:	https://github.com/akallabeth/webview/archive/navigation-listener/webview-navigation-listener.tar.gz
+# Source1-md5:	c936dfc266e62adfa3d0e92d97df1be7
 Patch0:		freerdp-opt.patch
 Patch1:		freerdp-gsm.patch
-Patch2:		freerdp-heimdal.patch
 URL:		https://www.freerdp.com/
 %{?with_opencl:BuildRequires:	OpenCL-devel}
 %if %{with sdl}
@@ -67,7 +69,8 @@ BuildRequires:	SDL2_ttf-devel >= 2.0
 %{?with_alsa:BuildRequires:	alsa-lib-devel}
 %{!?with_ffmpeg:BuildRequires:	cairo-devel}
 BuildRequires:	cjson-devel
-BuildRequires:	cmake >= 3.13
+# 3.13 for freerdp, 3.16 for webview external component
+BuildRequires:	cmake >= 3.16
 %{?with_cups:BuildRequires:	cups-devel >= 2.0}
 BuildRequires:	desktop-file-utils
 BuildRequires:	docbook-style-xsl-nons
@@ -80,11 +83,13 @@ BuildRequires:	gcc >= 6:4.7
 BuildRequires:	glib2-devel >= 2.0
 %{?with_gstreamer:BuildRequires:	gstreamer-devel >= 1.0.5}
 %{?with_gstreamer:BuildRequires:	gstreamer-plugins-base-devel >= 1.0.5}
-# or gtk-webkit4
+# or gtk-webkit4-devel (for webview component)
 BuildRequires:	gtk-webkit4.1-devel
+# for webview component
 BuildRequires:	gtk+3-devel >= 3.0
-# or MIT krb5 >= 1.14 (without heimdal patch)
+# or MIT krb5 >= 1.14 (preferred)
 %{?with_kerberos5:BuildRequires:	heimdal-devel}
+BuildRequires:	jansson-devel >= 2.13
 %{?with_lame:BuildRequires:	lame-libs-devel}
 BuildRequires:	libfuse3-devel >= 3
 %{?with_gsm:BuildRequires:	libgsm-devel}
@@ -259,10 +264,11 @@ Header files for uwac library.
 Pliki nagłówkowe biblioteki uwac.
 
 %prep
-%setup -q -n freerdp-%{version}
+%setup -q -n freerdp-%{version} -a1
 %patch -P0 -p1
 %patch -P1 -p1
-%patch -P2 -p1
+
+%{__mv} webview-navigation-listener external/webview
 
 cat << EOF > xfreerdp.desktop
 [Desktop Entry]
@@ -283,42 +289,42 @@ EOF
 	-DWINPR_UTILS_IMAGE_JPEG=ON \
 	-DWINPR_UTILS_IMAGE_PNG=ON \
 	-DWINPR_UTILS_IMAGE_WEBP=ON \
-	%{cmake_on_off alsa WITH_ALSA} \
+	-DWITH_ALSA=%{__ON_OFF alsa} \
 	%{!?with_ffmpeg:-DWITH_CAIRO=ON} \
-	%{cmake_on_off sdl WITH_CLIENT_SDL} \
+	-DWITH_CLIENT_SDL=%{__ON_OFF sdl} \
 	%{?with_sdl3:-DWITH_CLIENT_SDL2=OFF} \
 	%{!?with_sdl3:-DWITH_CLIENT_SDL3=OFF} \
-	%{cmake_on_off sdl WITH_SDL_IMAGE_DIALOGS} \
+	-DWITH_SDL_IMAGE_DIALOGS=%{__ON_OFF sdl} \
 	-DWITH_CUNIT=OFF \
-	%{cmake_on_off cups WITH_CUPS} \
-	-DWITH_DEBUG_LICENSE=ON \
-	%{cmake_on_off ffmpeg WITH_DSP_FFMPEG} \
-	%{cmake_on_off faac WITH_FAAC} \
-	%{cmake_on_off faad WITH_FAAD2} \
-	%{cmake_on_off fdk_aac WITH_FDK_AAC} \
-	%{cmake_on_off ffmpeg WITH_FFMPEG} \
-	%{cmake_on_off gsm WITH_GSM} \
-	%{cmake_on_off gstreamer WITH_GSTREAMER_1_0} \
+	-DWITH_CUPS=%{__ON_OFF cups} \
+	%{?with_debug_license:-DWITH_DEBUG_LICENSE=ON} \
+	-DWITH_DSP_FFMPEG=%{__ON_OFF ffmpeg} \
+	-DWITH_FAAC=%{__ON_OFF faac} \
+	-DWITH_FAAD2=%{__ON_OFF faad} \
+	-DWITH_FDK_AAC=%{__ON_OFF fdk_aac} \
+	-DWITH_FFMPEG=%{__ON_OFF ffmpeg} \
+	-DWITH_GSM=%{__ON_OFF gsm} \
+	-DWITH_GSTREAMER_1_0=%{__ON_OFF gstreamer} \
 	-DWITH_JPEG=ON \
-	%{cmake_on_off kerberos5 WITH_KRB5} \
-	%{cmake_on_off systemd WITH_LIBSYSTEMD} \
-	%{cmake_on_off opencl WITH_OPENCL} \
-	%{cmake_on_off openh264 WITH_OPENH264} \
-	%{cmake_on_off opus WITH_OPUS} \
+	-DWITH_KRB5=%{__ON_OFF kerberos5} \
+	-DWITH_LIBSYSTEMD=%{__ON_OFF systemd} \
+	-DWITH_OPENCL=%{__ON_OFF opencl} \
+	-DWITH_OPENH264=%{__ON_OFF openh264} \
+	-DWITH_OPUS=%{__ON_OFF opus} \
 	-DWITH_OSS=ON \
-	%{cmake_on_off pcsc WITH_PCSC} \
-	%{cmake_on_off pulseaudio WITH_PULSE} \
-	%{cmake_on_off rdpecam_client CHANNEL_RDPECAM_CLIENT} \
+	-DWITH_PCSC=%{__ON_OFF pcsc} \
+	-DWITH_PULSE=%{__ON_OFF pulseaudio} \
+	-DCHANNEL_RDPECAM_CLIENT=%{__ON_OFF rdpecam_client} \
 	-DWITH_SERVER=ON \
-	%{cmake_on_off soxr WITH_SOXR} \
-	%{cmake_on_off simd WITH_SIMD} \
-	%{cmake_on_off ffmpeg WITH_SWSCALE} \
+	-DWITH_SOXR=%{__ON_OFF soxr} \
+	-DWITH_SIMD=%{__ON_OFF simd} \
+	-DWITH_SWSCALE=%{__ON_OFF ffmpeg} \
 	-DWITH_TIMEZONE_ICU=ON \
-	%{cmake_on_off ffmpeg WITH_VAAPI} \
-	%{cmake_on_off ffmpeg WITH_VIDEO_FFMPEG} \
-	%{cmake_on_off wayland WITH_WAYLAND} \
+	-DWITH_VAAPI=%{__ON_OFF ffmpeg} \
+	-DWITH_VIDEO_FFMPEG=%{__ON_OFF ffmpeg} \
+	-DWITH_WAYLAND=%{__ON_OFF wayland} \
 	-DWITH_WEBVIEW=ON \
-	%{cmake_on_off x11 WITH_X11} \
+	-DWITH_X11=%{__ON_OFF x11} \
 	-DWITH_XCURSOR=ON \
 	-DWITH_XEXT=ON \
 	-DWITH_XI=ON \
@@ -394,41 +400,41 @@ rm -rf $RPM_BUILD_ROOT
 %files libs
 %defattr(644,root,root,755)
 %doc ChangeLog README.md SECURITY.md
-%attr(755,root,root) %{_libdir}/libfreerdp-client%{freerdp_api}.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libfreerdp-client%{freerdp_api}.so.3
-%attr(755,root,root) %{_libdir}/libfreerdp-server%{freerdp_api}.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libfreerdp-server%{freerdp_api}.so.3
-%attr(755,root,root) %{_libdir}/libfreerdp-server-proxy%{freerdp_api}.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libfreerdp-server-proxy%{freerdp_api}.so.3
-%attr(755,root,root) %{_libdir}/libfreerdp-shadow%{freerdp_api}.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libfreerdp-shadow%{freerdp_api}.so.3
-%attr(755,root,root) %{_libdir}/libfreerdp-shadow-subsystem%{freerdp_api}.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libfreerdp-shadow-subsystem%{freerdp_api}.so.3
-%attr(755,root,root) %{_libdir}/libfreerdp%{freerdp_api}.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libfreerdp%{freerdp_api}.so.3
-%attr(755,root,root) %{_libdir}/librdtk0.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/librdtk0.so.0
-%attr(755,root,root) %{_libdir}/libwinpr%{freerdp_api}.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libwinpr%{freerdp_api}.so.3
-%attr(755,root,root) %{_libdir}/libwinpr-tools%{freerdp_api}.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libwinpr-tools%{freerdp_api}.so.3
+%{_libdir}/libfreerdp-client%{freerdp_api}.so.*.*.*
+%ghost %{_libdir}/libfreerdp-client%{freerdp_api}.so.3
+%{_libdir}/libfreerdp-server%{freerdp_api}.so.*.*.*
+%ghost %{_libdir}/libfreerdp-server%{freerdp_api}.so.3
+%{_libdir}/libfreerdp-server-proxy%{freerdp_api}.so.*.*.*
+%ghost %{_libdir}/libfreerdp-server-proxy%{freerdp_api}.so.3
+%{_libdir}/libfreerdp-shadow%{freerdp_api}.so.*.*.*
+%ghost %{_libdir}/libfreerdp-shadow%{freerdp_api}.so.3
+%{_libdir}/libfreerdp-shadow-subsystem%{freerdp_api}.so.*.*.*
+%ghost %{_libdir}/libfreerdp-shadow-subsystem%{freerdp_api}.so.3
+%{_libdir}/libfreerdp%{freerdp_api}.so.*.*.*
+%ghost %{_libdir}/libfreerdp%{freerdp_api}.so.3
+%{_libdir}/librdtk0.so.*.*.*
+%ghost %{_libdir}/librdtk0.so.0
+%{_libdir}/libwinpr%{freerdp_api}.so.*.*.*
+%ghost %{_libdir}/libwinpr%{freerdp_api}.so.3
+%{_libdir}/libwinpr-tools%{freerdp_api}.so.*.*.*
+%ghost %{_libdir}/libwinpr-tools%{freerdp_api}.so.3
 %dir %{_libdir}/freerdp3
 %dir %{_libdir}/freerdp3/proxy
-%attr(755,root,root) %{_libdir}/freerdp3/proxy/proxy-bitmap-filter-plugin.so
-%attr(755,root,root) %{_libdir}/freerdp3/proxy/proxy-demo-plugin.so
-%attr(755,root,root) %{_libdir}/freerdp3/proxy/proxy-dyn-channel-dump-plugin.so
+%{_libdir}/freerdp3/proxy/libproxy-bitmap-filter-plugin.so
+%{_libdir}/freerdp3/proxy/libproxy-demo-plugin.so
+%{_libdir}/freerdp3/proxy/libproxy-dyn-channel-dump-plugin.so
 
 %files devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libfreerdp-client%{freerdp_api}.so
-%attr(755,root,root) %{_libdir}/libfreerdp-server%{freerdp_api}.so
-%attr(755,root,root) %{_libdir}/libfreerdp-server-proxy%{freerdp_api}.so
-%attr(755,root,root) %{_libdir}/libfreerdp-shadow%{freerdp_api}.so
-%attr(755,root,root) %{_libdir}/libfreerdp-shadow-subsystem%{freerdp_api}.so
-%attr(755,root,root) %{_libdir}/libfreerdp%{freerdp_api}.so
-%attr(755,root,root) %{_libdir}/librdtk0.so
-%attr(755,root,root) %{_libdir}/libwinpr%{freerdp_api}.so
-%attr(755,root,root) %{_libdir}/libwinpr-tools%{freerdp_api}.so
+%{_libdir}/libfreerdp-client%{freerdp_api}.so
+%{_libdir}/libfreerdp-server%{freerdp_api}.so
+%{_libdir}/libfreerdp-server-proxy%{freerdp_api}.so
+%{_libdir}/libfreerdp-shadow%{freerdp_api}.so
+%{_libdir}/libfreerdp-shadow-subsystem%{freerdp_api}.so
+%{_libdir}/libfreerdp%{freerdp_api}.so
+%{_libdir}/librdtk0.so
+%{_libdir}/libwinpr%{freerdp_api}.so
+%{_libdir}/libwinpr-tools%{freerdp_api}.so
 %{_includedir}/freerdp3
 %{_includedir}/rdtk0
 %{_includedir}/winpr3
@@ -451,12 +457,12 @@ rm -rf $RPM_BUILD_ROOT
 
 %files libuwac
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libuwac0.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libuwac0.so.0
+%{_libdir}/libuwac0.so.*.*.*
+%ghost %{_libdir}/libuwac0.so.0
 
 %files libuwac-devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libuwac0.so
+%{_libdir}/libuwac0.so
 %{_includedir}/uwac0
 %{_pkgconfigdir}/uwac0.pc
 %{_libdir}/cmake/uwac0
