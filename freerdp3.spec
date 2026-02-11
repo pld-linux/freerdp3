@@ -43,16 +43,17 @@
 Summary:	Remote Desktop Protocol client
 Summary(pl.UTF-8):	Klient protokołu RDP
 Name:		freerdp3
-Version:	3.21.0
+Version:	3.22.0
 Release:	1
 License:	Apache v2.0
 Group:		Applications/Communications
 Source0:	https://pub.freerdp.com/releases/freerdp-%{version}.tar.xz
-# Source0-md5:	cd5a80afd144d005e9d19cda727f4258
+# Source0-md5:	9cfa660586cc171c64f673f9c3acb5f2
 Source1:	https://github.com/akallabeth/webview/archive/navigation-listener/webview-navigation-listener.tar.gz
 # Source1-md5:	c936dfc266e62adfa3d0e92d97df1be7
 Patch0:		freerdp-opt.patch
 Patch1:		freerdp-gsm.patch
+Patch2:		libs.patch
 URL:		https://www.freerdp.com/
 %{?with_opencl:BuildRequires:	OpenCL-devel}
 %if %{with sdl}
@@ -267,6 +268,7 @@ Pliki nagłówkowe biblioteki uwac.
 %setup -q -n freerdp-%{version} -a1
 %patch -P0 -p1
 %patch -P1 -p1
+%patch -P2 -p1
 
 %{__mv} webview-navigation-listener external/webview
 

@@ -1,0 +1,10 @@
+--- freerdp-3.22.0/cmake/FindKRB5.cmake~	2026-02-11 14:09:19.000000000 +0100
++++ freerdp-3.22.0/cmake/FindKRB5.cmake	2026-02-11 14:11:41.438688573 +0100
+@@ -187,6 +187,7 @@ if(KRB5_MIT_FOUND)
+   endif()
+ elseif(KRB5_HEIMDAL_FOUND)
+   provides_krb5(NAME "Heimdal")
++  list(APPEND KRB5_LIBRARIES asn1)
+ elseif(KRB5_ANY_FOUND)
+   get_krb5_vendor(ANY_VENDOR)
+   provides_krb5(NAME "${ANY_VENDOR}")
