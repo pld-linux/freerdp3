@@ -43,12 +43,12 @@
 Summary:	Remote Desktop Protocol client
 Summary(pl.UTF-8):	Klient protokołu RDP
 Name:		freerdp3
-Version:	3.22.0
+Version:	3.23.0
 Release:	1
 License:	Apache v2.0
 Group:		Applications/Communications
 Source0:	https://pub.freerdp.com/releases/freerdp-%{version}.tar.xz
-# Source0-md5:	9cfa660586cc171c64f673f9c3acb5f2
+# Source0-md5:	43aac507c93a143d860d15b0d43ef26c
 Source1:	https://github.com/akallabeth/webview/archive/navigation-listener/webview-navigation-listener.tar.gz
 # Source1-md5:	c936dfc266e62adfa3d0e92d97df1be7
 Patch0:		freerdp-opt.patch
@@ -317,6 +317,7 @@ EOF
 	-DWITH_PCSC=%{__ON_OFF pcsc} \
 	-DWITH_PULSE=%{__ON_OFF pulseaudio} \
 	-DCHANNEL_RDPECAM_CLIENT=%{__ON_OFF rdpecam_client} \
+	-DWITH_RDTK=ON \
 	-DWITH_SERVER=ON \
 	-DWITH_SOXR=%{__ON_OFF soxr} \
 	-DWITH_SIMD=%{__ON_OFF simd} \
