@@ -108,7 +108,7 @@ BuildRequires:	openssl-devel
 BuildRequires:	pkgconfig
 BuildRequires:	pkcs11-helper-devel
 %{?with_pulseaudio:BuildRequires:	pulseaudio-devel}
-BuildRequires:	rpmbuild(macros) >= 1.742
+BuildRequires:	rpmbuild(macros) >= 2.047
 %{?with_soxr:BuildRequires:	soxr-devel}
 %{?with_systemd:BuildRequires:	systemd-devel >= 1:209}
 BuildRequires:	tar >= 1:1.22
