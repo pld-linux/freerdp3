@@ -44,7 +44,7 @@ Summary:	Remote Desktop Protocol client
 Summary(pl.UTF-8):	Klient protokołu RDP
 Name:		freerdp3
 Version:	3.30.0
-Release:	2
+Release:	3
 License:	Apache v2.0
 Group:		Applications/Communications
 Source0:	https://pub.freerdp.com/releases/freerdp-%{version}.tar.xz
