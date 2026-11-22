@@ -1,7 +1,6 @@
 # TODO:
 # - consider -DUWAC_HAVE_PIXMAN_REGION, so that libuwac would depend on pixman instead of freerdp3-libs
 # - what is libpcsc-winpr? (-DWITH_PCSC_WINPR)
-# - WITH_IPP?
 #
 # Conditional build:
 %bcond_with	debug_license	# license debugging messages (may reveal sensitive information)
@@ -43,17 +42,18 @@
 Summary:	Remote Desktop Protocol client
 Summary(pl.UTF-8):	Klient protokołu RDP
 Name:		freerdp3
-Version:	3.30.0
-Release:	3
+Version:	3.33.1
+Release:	1
 License:	Apache v2.0
 Group:		Applications/Communications
 Source0:	https://pub.freerdp.com/releases/freerdp-%{version}.tar.xz
-# Source0-md5:	38c6a616fa9194e05036d56a0e705685
+# Source0-md5:	455bd1382b8b48f73b331bde88497cce
 Source1:	https://github.com/akallabeth/webview/archive/navigation-listener/webview-navigation-listener.tar.gz
 # Source1-md5:	c936dfc266e62adfa3d0e92d97df1be7
 Patch0:		freerdp-opt.patch
 Patch1:		freerdp-gsm.patch
 Patch2:		libs.patch
+Patch3:		freerdp-heimdal.patch
 URL:		https://www.freerdp.com/
 %{?with_opencl:BuildRequires:	OpenCL-devel}
 %if %{with sdl}
@@ -90,6 +90,7 @@ BuildRequires:	gtk-webkit4.1-devel
 BuildRequires:	gtk+3-devel >= 3.0
 # or MIT krb5 >= 1.14 (preferred)
 %{?with_kerberos5:BuildRequires:	heimdal-devel}
+# or json-c or cJSON
 BuildRequires:	jansson-devel >= 2.13
 %{?with_lame:BuildRequires:	lame-libs-devel}
 BuildRequires:	libfuse3-devel >= 3
@@ -130,7 +131,7 @@ BuildRequires:	xorg-lib-libxkbfile-devel
 %endif
 BuildRequires:	xz
 BuildRequires:	zlib-devel
-Requires:	%{name}-libs = %{version}-%{release}
+Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
 Requires:	hicolor-icon-theme
 Obsoletes:	freerdp2 < 3
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -152,7 +153,7 @@ Microsoft Windows, xrdp oraz VirtualBox.
 Summary:	SDL based Remote Desktop Protocol klient
 Summary(pl.UTF-8):	Klient protokołu RDP oparty na SDL
 Group:		Applications/Communications
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
 Obsoletes:	freerdp-dfb < 2
 Obsoletes:	freerdp2-dfb < 3
 
@@ -172,8 +173,8 @@ Microsoft Windows, xrdp oraz VirtualBox.
 Summary:	Wayland based Remote Desktop Protocol klient
 Summary(pl.UTF-8):	Klient protokołu RDP oparty na Wayland
 Group:		Applications/Communications
-Requires:	%{name} = %{version}-%{release}
-Requires:	%{name}-libuwac = %{version}-%{release}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
+Requires:	%{name}-libuwac%{?_isa} = %{version}-%{release}
 Obsoletes:	freerdp2-wayland < 3
 
 %description wayland
@@ -192,7 +193,7 @@ Microsoft Windows, xrdp oraz VirtualBox.
 Summary:	X11 based Remote Desktop Protocol klient
 Summary(pl.UTF-8):	Klient protokołu RDP oparty na X11
 Group:		Applications/Communications
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
 Provides:	xfreerdp = %{version}-%{release}
 Obsoletes:	freerdp < 2
 Obsoletes:	freerdp2-x11 < 3
@@ -224,8 +225,8 @@ Główne biblioteki implementujące protokół RDP.
 Summary:	Development files for FreeRDP 2 libraries
 Summary(pl.UTF-8):	Pliki programistyczne bibliotek FreeRDP 2
 Group:		Development/Libraries
-Requires:	%{name}-libs = %{version}-%{release}
-Requires:	libfuse3-devel >= 3
+Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
+Requires:	libfuse3-devel%{?_isa} >= 3
 
 %description devel
 This package contains the header files for developing applications
@@ -239,7 +240,7 @@ wykorzystujących biblioteki FreeRDP 2.
 Summary:	uwac: using wayland as a client
 Summary(pl.UTF-8):	Biblioteka uwac pozwalająca na korzystanie z waylanda jako klienta
 Group:		Libraries
-Requires:	%{name}-libs = %{version}-%{release}
+Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
 Obsoletes:	freerdp2-libuwac < 3
 Conflicts:	freerdp2-libs < 2.11.7-2
 
@@ -253,8 +254,8 @@ Biblioteka uwac pozwalająca na korzystanie z waylanda jako klienta.
 Summary:	Header files for uwac library
 Summary(pl.UTF-8):	Pliki nagłówkowe biblioteki uwac
 Group:		Development/Libraries
-Requires:	%{name}-libuwac = %{version}-%{release}
-Requires:	wayland-devel
+Requires:	%{name}-libuwac%{?_isa} = %{version}-%{release}
+Requires:	wayland-devel%{?_isa}
 Obsoletes:	freerdp2-libuwac-devel < 3
 Conflicts:	freerdp2-devel < 2.11.7-2
 
@@ -269,6 +270,7 @@ Pliki nagłówkowe biblioteki uwac.
 %patch -P0 -p1
 %patch -P1 -p1
 %patch -P2 -p1
+%patch -P3 -p1
 
 %{__mv} webview-navigation-listener external/webview
 
@@ -291,6 +293,7 @@ EOF
 	-DWINPR_UTILS_IMAGE_JPEG=ON \
 	-DWINPR_UTILS_IMAGE_PNG=ON \
 	-DWINPR_UTILS_IMAGE_WEBP=ON \
+	-DWITH_AAD=ON \
 	-DWITH_ALSA=%{__ON_OFF alsa} \
 	%{!?with_ffmpeg:-DWITH_CAIRO=ON} \
 	-DWITH_CLIENT_SDL=%{__ON_OFF sdl} \
@@ -376,6 +379,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/freerdp-shadow-cli.1*
 %{_mandir}/man1/winpr-hash.1*
 %{_mandir}/man1/winpr-makecert.1*
+%{_mandir}/man7/freerdp.7*
 %{_mandir}/man7/wlog.7*
 
 %if %{with sdl}

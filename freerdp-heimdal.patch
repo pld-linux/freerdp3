@@ -1,0 +1,46 @@
+--- freerdp-3.33.1/winpr/libwinpr/sspi/Kerberos/kerberos.c.orig	2026-11-10 09:23:35.000000000 +0100
++++ freerdp-3.33.1/winpr/libwinpr/sspi/Kerberos/kerberos.c	2026-11-22 13:56:17.431415405 +0100
+@@ -253,7 +253,7 @@ static krb5_error_code krb5_prompter(krb
+ 
+ 			memcpy(reply->data, data, len);
+ 			if (len < reply->length)
+-				reply->data[len] = '\0';
++				((char*)reply->data)[len] = '\0';
+ 			reply->length = (UINT32)len;
+ 		}
+ 	}
+@@ -392,7 +392,7 @@ static BOOL kerberos_is_realm_error(krb5
+ 	{
+ 		case KRB5_REALM_UNKNOWN:
+ 		case KRB5_KDC_UNREACH:
+-		case KRB5KDC_ERR_WRONG_REALM:
++		case KRB5_KDC_ERR_WRONG_REALM:
+ 			return TRUE;
+ 		default:
+ 			return FALSE;
+--- freerdp-3.33.1/winpr/libwinpr/sspi/Kerberos/krb5glue_heimdal.c.orig	2026-11-10 09:23:35.000000000 +0100
++++ freerdp-3.33.1/winpr/libwinpr/sspi/Kerberos/krb5glue_heimdal.c	2026-11-22 14:29:32.687272842 +0100
+@@ -141,13 +141,13 @@ BOOL krb5glue_authenticator_validate_chk
+ 		return FALSE;
+ 
+ 	const BYTE* data = authenticator->cksum->checksum.data;
+-	Data_Read_UINT32((data + 20), (*flags));
++	*flags = winpr_Data_Get_UINT32((data + 20));
+ 	return TRUE;
+ }
+ 
+ krb5_error_code krb5glue_get_init_creds(krb5_context ctx, krb5_principal princ, krb5_ccache ccache,
+                                         krb5_prompter_fct prompter, char* password,
+-                                        SEC_WINPR_KERBEROS_SETTINGS* krb_settings)
++                                        SEC_WINPR_KERBEROS_SETTINGS_V2* krb_settings)
+ {
+ 	krb5_error_code rv = 0;
+ 	krb5_deltat start_time = 0;
+@@ -183,6 +183,7 @@ krb5_error_code krb5glue_get_init_creds(
+ 				         password)) != 0)
+ 					break;
+ 			}
++			/* TODO: krb_settings->kdcUrl? no profile_* API in heimdal */
+ 		}
+ 
+ 		if ((rv = krb5_init_creds_init(ctx, princ, prompter, password, start_time, gic_opt,
