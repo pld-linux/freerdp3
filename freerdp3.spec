@@ -27,6 +27,7 @@
 %bcond_without	wayland		# Wayland client
 %bcond_without	x11		# X11 client
 %bcond_without	simd		# SSE2/SSE3/SSE4/AVX2 x86 instructions (runtime detection)
+%bcond_without	obsolete_old	# Obsoletes for parallel-installable but obsolete/unmaintained freerdp 1.x/2.x libs
 
 %define	freerdp_api	3
 
@@ -214,6 +215,10 @@ Microsoft Windows, xrdp oraz VirtualBox.
 Summary:	Core libraries implementing the RDP protocol
 Summary(pl.UTF-8):	Główne biblioteki implementujące protokół RDP
 Group:		Libraries
+%if %{with obsolete_old}
+Obsoletes:	freerdp-libs < 2
+Obsoletes:	freerdp2-libs < 3
+%endif
 
 %description libs
 Core libraries implementing the RDP protocol.
@@ -227,6 +232,10 @@ Summary(pl.UTF-8):	Pliki programistyczne bibliotek FreeRDP 2
 Group:		Development/Libraries
 Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
 Requires:	libfuse3-devel%{?_isa} >= 3
+%if %{with obsolete_old}
+Obsoletes:	freerdp-devel < 2
+Obsoletes:	freerdp2-devel < 3
+%endif
 
 %description devel
 This package contains the header files for developing applications
